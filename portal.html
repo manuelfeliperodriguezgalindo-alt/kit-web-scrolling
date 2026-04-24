@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Acceso – Reina María IPS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1565C0; --blue-dark: #0D3B8C; --blue-light: #42A5F5;
+    --blue-xlight: #E3F2FD; --yellow: #FFD600; --yellow-dark: #F9A825;
+    --white: #FFFFFF; --gray-50: #F8FAFC; --gray-100: #EFF3F8;
+    --gray-400: #9CA3AF; --gray-600: #4B5563; --text: #1A202C;
+    --error: #DC2626; --success: #16A34A;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif; color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column;
+    background: var(--gray-50);
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--blue-dark); padding: 1rem 5%;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-wrap img { height: 44px; }
+  .logo-text { color: white; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.2; }
+  .logo-sub { font-size: 0.6rem; letter-spacing: 2px; color: var(--yellow); text-transform: uppercase; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .back-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .back-link:hover { color: var(--yellow); }
+
+  /* ── MAIN ── */
+  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 5%; }
+
+  /* ── PORTAL CARD ── */
+  .portal-card {
+    background: var(--white); border-radius: 28px;
+    box-shadow: 0 8px 48px rgba(21,101,192,0.14);
+    width: 100%; max-width: 480px; overflow: hidden;
+  }
+  .card-header {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    padding: 2.5rem 2.5rem 2rem; text-align: center; position: relative;
+  }
+  .card-header-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .card-header h1 { font-family: 'Playfair Display', serif; color: white; font-size: 1.6rem; }
+  .card-header p { color: rgba(255,255,255,0.75); font-size: 0.85rem; margin-top: 0.4rem; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; border-bottom: 2px solid var(--gray-100); }
+  .tab-btn {
+    flex: 1; padding: 1rem; background: none; border: none; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600;
+    color: var(--gray-400); transition: all 0.25s; border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+  }
+  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .tab-btn:hover:not(.active) { color: var(--gray-600); background: var(--gray-50); }
+
+  /* ── FORM ── */
+  .card-body { padding: 2rem 2.5rem 2.5rem; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .form-group { margin-bottom: 1.1rem; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--blue-dark); margin-bottom: 0.4rem; }
+  .input-wrap { position: relative; }
+  .input-wrap .input-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 1rem; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 0.78rem 1rem 0.78rem 2.6rem;
+    border: 1.5px solid #E2E8F0; border-radius: 10px;
+    font-size: 0.9rem; font-family: 'Inter', sans-serif;
+    transition: border 0.2s, box-shadow 0.2s; outline: none; background: var(--white);
+    color: var(--text);
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+  }
+  .form-group input.error { border-color: var(--error); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .toggle-pass {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; background: none; border: none; font-size: 1rem; color: var(--gray-400);
+    padding: 0; line-height: 1;
+  }
+  .forgot-link { display: block; text-align: right; font-size: 0.78rem; color: var(--blue); text-decoration: none; margin-top: 0.4rem; }
+  .forgot-link:hover { text-decoration: underline; }
+
+  /* Role selector */
+  .role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem; }
+  .role-option { position: relative; }
+  .role-option input[type="radio"] { position: absolute; opacity: 0; width: 0; }
+  .role-label {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 1rem 0.5rem; border: 2px solid #E2E8F0; border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .role-label .role-icon { font-size: 1.6rem; }
+  .role-label .role-name { font-size: 0.82rem; font-weight: 600; color: var(--gray-600); }
+  .role-option input:checked + .role-label {
+    border-color: var(--blue); background: var(--blue-xlight); color: var(--blue);
+  }
+  .role-option input:checked + .role-label .role-name { color: var(--blue); }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%; background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white; border: none; padding: 0.95rem; border-radius: 12px;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: all 0.25s; font-family: 'Inter', sans-serif; margin-top: 0.5rem;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(21,101,192,0.35); }
+  .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+  .spinner {
+    width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Alert messages */
+  .alert {
+    padding: 0.8rem 1rem; border-radius: 10px; font-size: 0.85rem;
+    margin-bottom: 1rem; display: none; align-items: center; gap: 8px;
+  }
+  .alert.show { display: flex; }
+  .alert-error { background: #FEF2F2; color: var(--error); border: 1px solid #FECACA; }
+  .alert-success { background: #F0FDF4; color: var(--success); border: 1px solid #BBF7D0; }
+
+  /* Reset password modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center; z-index: 999;
+    backdrop-filter: blur(4px); padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 20px; padding: 2.5rem;
+    width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal h3 { font-family: 'Playfair Display', serif; color: var(--blue-dark); margin-bottom: 0.5rem; }
+  .modal p { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 1.5rem; }
+  .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+  .btn-cancel {
+    flex: 1; padding: 0.75rem; border: 1.5px solid #E2E8F0; background: none;
+    border-radius: 10px; cursor: pointer; font-size: 0.9rem; color: var(--gray-600);
+    font-family: 'Inter', sans-serif; transition: 0.2s;
+  }
+  .btn-cancel:hover { background: var(--gray-50); }
+
+  /* ── FOOTER ── */
+  footer { background: var(--blue-dark); color: rgba(255,255,255,0.6); padding: 1.2rem 5%; text-align: center; font-size: 0.78rem; }
+  footer a { color: var(--yellow); text-decoration: none; }
+
+  @media (max-width: 540px) {
+    .card-body { padding: 1.5rem; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo-wrap" href="index.html">
+    <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+    <div>
+      <div class="logo-text">Reina María</div>
+      <div class="logo-sub">IPS</div>
+    </div>
+  </a>
+  <a class="back-link" href="index.html">← Volver al inicio</a>
+</header>
+
+<main>
+  <div class="portal-card">
+    <div class="card-header">
+      <div class="card-header-icon">🏥</div>
+      <h1>Portal de Acceso</h1>
+      <p>Ingresa a tu espacio de salud digital</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="tab-btn" onclick="switchTab('register')">Registrarse</button>
+    </div>
+
+    <div class="card-body">
+
+      <!-- LOGIN -->
+      <div class="tab-content active" id="tab-login">
+        <div class="alert alert-error" id="login-error">⚠️ <span id="login-error-msg"></span></div>
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="login-email" placeholder="correo@ejemplo.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="login-pass" placeholder="Tu contraseña" required>
+              <button type="button" class="toggle-pass" onclick="togglePass('login-pass',this)">👁️</button>
+            </div>
+            <a class="forgot-link" onclick="openResetModal()">¿Olvidaste tu contraseña?</a>
+          </div>
+          <button type="submit" class="btn-submit" id="login-btn">
+            <div class="spinner" id="login-spinner"></div>
+            <span id="login-btn-text">Ingresar</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="tab-content" id="tab-register">
+        <div class="alert alert-error" id="register-error">⚠️ <span id="register-error-msg"></span></div>
+        <div class="alert alert-success" id="register-success">✅ <span>Cuenta creada. Revisa tu correo para verificarla.</span></div>
+        <form onsubmit="handleRegister(event)">
+          <div style="margin-bottom:1rem">
+            <label style="font-size:0.82rem;font-weight:600;color:var(--blue-dark);display:block;margin-bottom:0.6rem">Tipo de usuario</label>
+            <div class="role-selector">
+              <div class="role-option">
+                <input type="radio" name="role" id="role-patient" value="paciente" checked>
+                <label class="role-label" for="role-patient">
+                  <span class="role-icon">🙍</span>
+                  <span class="role-name">Paciente</span>
+                </label>
+              </div>
+              <div class="role-option">
+                <input type="radio" name="role" id="role-employee" value="empleado">
+                <label class="role-label" for="role-employee">
+                  <span class="role-icon">👨‍⚕️</span>
+                  <span class="role-name">Empleado</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre</label>
+              <div class="input-wrap">
+                <span class="input-icon">👤</span>
+                <input type="text" id="reg-nombre" placeholder="Nombre" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Apellidos</label>
+              <div class="input-wrap">
+                <span class="input-icon">👤</span>
+                <input type="text" id="reg-apellido" placeholder="Apellidos" required>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Cédula / Documento</label>
+            <div class="input-wrap">
+              <span class="input-icon">🪪</span>
+              <input type="text" id="reg-cedula" placeholder="Número de documento" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Correo electrónico</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="reg-email" placeholder="correo@ejemplo.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" required minlength="6">
+              <button type="button" class="toggle-pass" onclick="togglePass('reg-pass',this)">👁️</button>
+            </div>
+          </div>
+          <div class="form-group" id="employee-code-wrap" style="display:none">
+            <label>Código de empleado</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔑</span>
+              <input type="text" id="reg-empcode" placeholder="Código asignado por la IPS">
+            </div>
+          </div>
+          <button type="submit" class="btn-submit" id="register-btn">
+            <div class="spinner" id="register-spinner"></div>
+            <span id="register-btn-text">Crear cuenta</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h3>Recuperar contraseña</h3>
+    <p>Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+    <div class="alert alert-error" id="reset-error">⚠️ <span id="reset-error-msg"></span></div>
+    <div class="alert alert-success" id="reset-success">✅ <span>Correo enviado. Revisa tu bandeja de entrada.</span></div>
+    <div class="form-group">
+      <label>Correo electrónico</label>
+      <div class="input-wrap">
+        <span class="input-icon">✉️</span>
+        <input type="email" id="reset-email" placeholder="correo@ejemplo.com">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeResetModal()">Cancelar</button>
+      <button class="btn-submit" style="flex:1" onclick="handleReset()">Enviar enlace</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  © 2026 Reina María IPS · <a href="#">Política de privacidad</a> · <a href="#">Habeas Data</a>
+</footer>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // ── FIREBASE CONFIG ── (reemplaza con tus credenciales)
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId: "TU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const EMPLOYEE_CODE = "REINA2026"; // Código secreto para empleados — cámbialo
+
+  // Exponer al scope global para los handlers HTML
+  window._auth = auth;
+  window._db = db;
+  window._createUser = createUserWithEmailAndPassword;
+  window._signIn = signInWithEmailAndPassword;
+  window._resetPass = sendPasswordResetEmail;
+  window._updateProfile = updateProfile;
+  window._setDoc = setDoc;
+  window._getDoc = getDoc;
+  window._doc = doc;
+  window._EMPLOYEE_CODE = EMPLOYEE_CODE;
+</script>
+
+<script>
+// ── TAB SWITCH ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1)));
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+}
+
+// ── TOGGLE PASSWORD ──
+function togglePass(id, btn) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+}
+
+// ── SHOW/HIDE EMPLOYEE CODE ──
+document.querySelectorAll('input[name="role"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('employee-code-wrap').style.display =
+      r.value === 'empleado' && r.checked ? 'block' : 'none';
+  });
+});
+
+// ── LOGIN ──
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  setLoading('login', true);
+  hideAlert('login-error');
+
+  try {
+    const cred = await window._signIn(window._auth, email, pass);
+    const userDoc = await window._getDoc(window._doc(window._db, 'users', cred.user.uid));
+    const role = userDoc.exists() ? userDoc.data().role : 'paciente';
+    window.location.href = role === 'empleado' ? 'dashboard-empleado.html' : 'dashboard-paciente.html';
+  } catch (err) {
+    showAlert('login-error', 'login-error-msg', translateError(err.code));
+    setLoading('login', false);
+  }
+}
+
+// ── REGISTER ──
+async function handleRegister(e) {
+  e.preventDefault();
+  const nombre = document.getElementById('reg-nombre').value.trim();
+  const apellido = document.getElementById('reg-apellido').value.trim();
+  const cedula = document.getElementById('reg-cedula').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const role = document.querySelector('input[name="role"]:checked').value;
+  const empCode = document.getElementById('reg-empcode').value.trim();
+  hideAlert('register-error'); hideAlert('register-success');
+
+  if (role === 'empleado' && empCode !== window._EMPLOYEE_CODE) {
+    showAlert('register-error', 'register-error-msg', 'Código de empleado incorrecto.');
+    return;
+  }
+
+  setLoading('register', true);
+  try {
+    const cred = await window._createUser(window._auth, email, pass);
+    await window._updateProfile(cred.user, { displayName: nombre + ' ' + apellido });
+    await window._setDoc(window._doc(window._db, 'users', cred.user.uid), {
+      nombre, apellido, cedula, email, role,
+      createdAt: new Date().toISOString()
+    });
+    document.getElementById('register-success').classList.add('show');
+    setTimeout(() => {
+      window.location.href = role === 'empleado' ? 'dashboard-empleado.html' : 'dashboard-paciente.html';
+    }, 2000);
+  } catch (err) {
+    showAlert('register-error', 'register-error-msg', translateError(err.code));
+    setLoading('register', false);
+  }
+}
+
+// ── RESET PASSWORD ──
+function openResetModal() { document.getElementById('resetModal').classList.add('open'); }
+function closeResetModal() { document.getElementById('resetModal').classList.remove('open'); hideAlert('reset-error'); hideAlert('reset-success'); }
+
+async function handleReset() {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) { showAlert('reset-error','reset-error-msg','Ingresa tu correo.'); return; }
+  try {
+    await window._resetPass(window._auth, email);
+    hideAlert('reset-error');
+    document.getElementById('reset-success').classList.add('show');
+  } catch(err) {
+    showAlert('reset-error','reset-error-msg', translateError(err.code));
+  }
+}
+
+// ── HELPERS ──
+function setLoading(form, on) {
+  const btn = document.getElementById(form+'-btn');
+  const spinner = document.getElementById(form+'-spinner');
+  const text = document.getElementById(form+'-btn-text');
+  btn.disabled = on;
+  spinner.style.display = on ? 'block' : 'none';
+  text.textContent = on ? (form==='login' ? 'Ingresando...' : 'Creando cuenta...') : (form==='login' ? 'Ingresar' : 'Crear cuenta');
+}
+function showAlert(alertId, msgId, msg) {
+  document.getElementById(msgId).textContent = msg;
+  document.getElementById(alertId).classList.add('show');
+}
+function hideAlert(alertId) { document.getElementById(alertId).classList.remove('show'); }
+
+function translateError(code) {
+  const msgs = {
+    'auth/user-not-found': 'No existe una cuenta con este correo.',
+    'auth/wrong-password': 'Contraseña incorrecta.',
+    'auth/email-already-in-use': 'Este correo ya está registrado.',
+    'auth/invalid-email': 'El correo no es válido.',
+    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+    'auth/too-many-requests': 'Demasiados intentos. Espera un momento.',
+    'auth/network-request-failed': 'Error de conexión. Verifica tu internet.',
+    'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+  };
+  return msgs[code] || 'Ocurrió un error. Intenta de nuevo.';
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('resetModal').addEventListener('click', function(e) {
+  if (e.target === this) closeResetModal();
+});
+</script>
+</body>
+</html>
