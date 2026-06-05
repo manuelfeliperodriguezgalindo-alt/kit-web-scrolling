@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Nueva Historia Clínica Ocupacional – Reina María IPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1E6FB3; --blue-dark: #0E3D6E; --blue-xlight: #EAF3FB;
+    --green: #4FB3A2; --green-dark: #2F8D7B; --green-soft: #E6F4F1;
+    --yellow: #FFD600; --yellow-soft: #FFF8E1; --yellow-dark: #F9A825;
+    --white: #FFFFFF; --gray-50: #F7FAFC; --gray-100: #EEF3F7;
+    --gray-300: #CBD5E0; --gray-500: #6B7280; --gray-600: #4B5563; --gray-700: #374151;
+    --text: #1A2233; --error: #DC2626;
+    --shadow: 0 4px 18px rgba(14,61,110,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif; color: var(--text); background: var(--gray-50);
+    -webkit-font-smoothing: antialiased; line-height: 1.5;
+  }
+  a { color: inherit; }
+
+  header {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    padding: 0.85rem 5%; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); gap: 0.8rem;
+  }
+  header img { height: 38px; width: auto; max-width: 150px; object-fit: contain; background: white; padding: 4px 8px; border-radius: 8px; }
+  header .back { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
+  header .back:hover { color: var(--yellow); }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 1.5rem 5% 6rem; }
+  h1.title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--blue-dark); margin-bottom: 0.3rem; }
+  .subtitle { color: var(--gray-600); font-size: 0.92rem; margin-bottom: 1.2rem; }
+  .codigo-formato {
+    display: inline-block; background: var(--yellow-soft); color: var(--yellow-dark);
+    padding: 3px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-left: 0.5rem;
+  }
+
+  /* ── STEP NAV ── */
+  .stepper {
+    display: flex; gap: 4px; overflow-x: auto; padding: 0.4rem 0;
+    margin-bottom: 1.5rem; -webkit-overflow-scrolling: touch;
+  }
+  .stepper::-webkit-scrollbar { height: 4px; }
+  .stepper::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
+  .step-btn {
+    border: none; background: var(--white); color: var(--gray-500);
+    padding: 0.55rem 0.9rem; border-radius: 50px; cursor: pointer;
+    font-family: inherit; font-size: 0.78rem; font-weight: 600;
+    border: 1.5px solid var(--gray-100); white-space: nowrap;
+    transition: all 0.18s; flex-shrink: 0;
+  }
+  .step-btn:hover { color: var(--blue-dark); border-color: var(--blue); }
+  .step-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+  .step-btn.done { background: var(--green-soft); color: var(--green-dark); border-color: var(--green); }
+  .step-btn .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--gray-100); color: var(--gray-600); font-size: 0.68rem;
+    margin-right: 6px; font-weight: 700;
+  }
+  .step-btn.active .num { background: rgba(255,255,255,0.25); color: white; }
+  .step-btn.done .num { background: var(--green); color: white; }
+
+  .step-page { display: none; }
+  .step-page.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .section {
+    background: var(--white); border-radius: 16px; padding: 1.4rem;
+    box-shadow: var(--shadow); margin-bottom: 1rem; border: 1px solid var(--gray-100);
+  }
+  .section h2 {
+    font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--blue-dark);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .section h2::before { content: ''; width: 5px; height: 22px; background: var(--green); border-radius: 3px; }
+  .section h3 {
+    font-size: 0.78rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: 1.2px;
+    margin: 1.1rem 0 0.55rem; font-weight: 700;
+  }
+
+  .grid { display: grid; gap: 0.75rem; grid-template-columns: 1fr; }
+  @media (min-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  }
+
+  label.field { display: block; }
+  label.field .lbl { display: block; font-size: 0.74rem; font-weight: 600; color: var(--blue-dark); margin-bottom: 0.25rem; }
+  label.field input, label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.75rem; border: 1.5px solid var(--gray-100);
+    border-radius: 8px; font-family: inherit; font-size: 0.88rem; outline: none;
+    background: var(--white); color: var(--text); transition: border 0.15s;
+  }
+  label.field input:focus, label.field select:focus, label.field textarea:focus { border-color: var(--green); }
+  label.field textarea { resize: vertical; min-height: 60px; }
+  label.field input[type="number"] { -moz-appearance: textfield; }
+
+  .check-grid { display: grid; gap: 0.45rem; grid-template-columns: 1fr; }
+  @media (min-width: 600px) {
+    .check-grid-2 { grid-template-columns: 1fr 1fr; }
+    .check-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  }
+  label.check {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    padding: 0.4rem 0.7rem; border-radius: 8px; background: var(--gray-50);
+    border: 1.5px solid transparent; font-size: 0.84rem;
+  }
+  label.check:hover { background: var(--green-soft); }
+  label.check input { accent-color: var(--green); flex-shrink: 0; }
+  label.check:has(input:checked) { background: var(--green-soft); border-color: var(--green); color: var(--green-dark); font-weight: 600; }
+
+  /* Tabla de patologías (presente + descripción) */
+  .pato-row {
+    display: grid; grid-template-columns: 1fr; gap: 0.4rem; padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--gray-100);
+  }
+  @media (min-width: 700px) { .pato-row { grid-template-columns: 200px auto 1fr; align-items: center; } }
+  .pato-row:last-child { border-bottom: none; }
+  .pato-name { font-size: 0.85rem; color: var(--blue-dark); font-weight: 500; }
+  .pato-row .check { padding: 0.3rem 0.65rem; }
+  .pato-row input[type="text"] {
+    width: 100%; padding: 0.4rem 0.65rem; border: 1.5px solid var(--gray-100);
+    border-radius: 6px; font-family: inherit; font-size: 0.82rem; outline: none; background: var(--white);
+  }
+  .pato-row input[type="text"]:focus { border-color: var(--green); }
+
+  /* Factor de riesgo: nivel + horas */
+  .factor-row {
+    display: grid; grid-template-columns: 1fr; gap: 0.35rem; padding: 0.45rem 0;
+    border-bottom: 1px dashed var(--gray-100);
+  }
+  @media (min-width: 700px) { .factor-row { grid-template-columns: 1fr 100px 100px; align-items: center; } }
+  .factor-row:last-child { border-bottom: none; }
+  .factor-row .lbl-fac { font-size: 0.85rem; color: var(--gray-700); }
+  .factor-row select, .factor-row input {
+    width: 100%; padding: 0.35rem 0.6rem; border: 1.5px solid var(--gray-100);
+    border-radius: 6px; font-family: inherit; font-size: 0.82rem; outline: none; background: var(--white);
+  }
+  .factor-row select:focus, .factor-row input:focus { border-color: var(--green); }
+
+  .nav-buttons {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--white); border-top: 1px solid var(--gray-100);
+    padding: 0.85rem 5%; display: flex; gap: 0.6rem; justify-content: space-between;
+    z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+  }
+  .nav-buttons .left, .nav-buttons .right { display: flex; gap: 0.6rem; }
+  .btn {
+    border: none; cursor: pointer; padding: 0.7rem 1.2rem; border-radius: 10px;
+    font-size: 0.88rem; font-weight: 700; font-family: inherit; transition: all 0.18s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color: white; }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(30,111,179,0.35); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--gray-600); border: 1.5px solid var(--gray-100); }
+  .btn-ghost:hover { background: var(--gray-50); }
+  .btn-success { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: white; }
+  .btn-success:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,179,162,0.4); }
+
+  .alert {
+    padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.88rem;
+    margin-bottom: 1rem; display: none;
+  }
+  .alert.show { display: block; }
+  .alert-error { background: #FEF2F2; color: var(--error); border: 1px solid #FECACA; }
+  .alert-success { background: var(--green-soft); color: var(--green-dark); border: 1px solid #BBF7D0; }
+  .alert-info { background: var(--blue-xlight); color: var(--blue-dark); border: 1px solid #BBDEFB; }
+
+  .folio-display {
+    background: var(--blue-xlight); color: var(--blue-dark);
+    padding: 0.7rem 1rem; border-radius: 8px; font-family: ui-monospace, monospace;
+    font-size: 0.88rem; font-weight: 600; margin-bottom: 1rem; display: none;
+  }
+  .folio-display.show { display: block; }
+  .folio-display strong { display: block; font-size: 0.7rem; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+
+  .draft-badge {
+    background: var(--yellow-soft); color: var(--yellow-dark);
+    padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 0.82rem;
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1 class="title">Nueva Historia Clínica Ocupacional</h1>
+  <p class="subtitle">Diligencia las 8 secciones del formato físico. El borrador se guarda automáticamente cada 30 segundos.</p>
+
+  <div id="folio" class="folio-display"><strong>Folio</strong><span id="folioVal"></span></div>
+  <div id="alert" class="alert"></div>
+  <div class="draft-badge" id="draftBadge" style="display:none">💾 Borrador guardado <span id="draftTime"></span></div>
+
+  <nav class="stepper" id="stepper" aria-label="Pasos del formulario"></nav>
+
+  <form id="form" novalidate>
+
+    <!-- ─── PASO 1: IDENTIFICACIÓN + HISTORIA OCUPACIONAL ─── -->
+    <div class="step-page active" data-step="1">
+
+      <section class="section">
+        <h2>Tipo de examen y datos generales</h2>
+        <div class="grid grid-2">
+          <label class="field"><span class="lbl">Tipo de examen *</span>
+            <select id="tipo_examen" required>
+              <option value="ingreso">Ingreso</option>
+              <option value="periodico">Periódico</option>
+              <option value="reintegro">Reintegro</option>
+              <option value="retiro">Retiro</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Fecha del examen *</span><input type="date" id="fecha_examen" required></label>
+          <label class="field"><span class="lbl">Dependencia</span><input type="text" data-path="dependencia"></label>
+          <label class="field"><span class="lbl">Departamento y ciudad</span><input type="text" data-path="departamento_ciudad"></label>
+          <label class="field"><span class="lbl">ID empresa (o "PARTICULAR") *</span><input type="text" id="empresa_id" value="PARTICULAR" required></label>
+          <label class="field"><span class="lbl">UID Paciente (auth, opcional)</span><input type="text" id="paciente_id"></label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>1. Identificación</h2>
+        <div class="grid grid-2">
+          <label class="field"><span class="lbl">Nombres *</span><input type="text" id="nombres" required></label>
+          <label class="field"><span class="lbl">Apellidos *</span><input type="text" id="apellidos" required></label>
+          <label class="field"><span class="lbl">Tipo documento *</span>
+            <select id="tipo_documento" required>
+              <option value="CC">CC</option><option value="TI">TI</option><option value="CE">CE</option><option value="PP">PP</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Número documento *</span><input type="text" id="numero_documento" required></label>
+          <label class="field"><span class="lbl">Lugar de expedición</span><input type="text" data-path="identificacion_snapshot.lugar_expedicion"></label>
+          <label class="field"><span class="lbl">Lugar de nacimiento</span><input type="text" data-path="identificacion_snapshot.lugar_nacimiento"></label>
+          <label class="field"><span class="lbl">Fecha de nacimiento</span><input type="date" data-path="identificacion_snapshot.fecha_nacimiento"></label>
+          <label class="field"><span class="lbl">Edad</span><input type="number" min="0" max="120" data-path="identificacion_snapshot.edad"></label>
+          <label class="field"><span class="lbl">Sexo</span>
+            <select data-path="identificacion_snapshot.sexo">
+              <option value="">—</option><option value="M">Masculino</option><option value="F">Femenino</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Estado civil</span>
+            <select data-path="identificacion_snapshot.estado_civil">
+              <option value="">—</option><option value="S">Soltero/a</option><option value="C">Casado/a</option>
+              <option value="UL">Unión libre</option><option value="Sep">Separado/a</option><option value="V">Viudo/a</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Escolaridad</span>
+            <select data-path="identificacion_snapshot.escolaridad">
+              <option value="">—</option><option value="basica">Básica</option><option value="media">Media</option>
+              <option value="tecnica">Técnica</option><option value="universidad">Universidad</option><option value="postgrado">Postgrado</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Profesión</span><input type="text" data-path="identificacion_snapshot.profesion"></label>
+          <label class="field"><span class="lbl">Cargo</span><input type="text" data-path="identificacion_snapshot.cargo"></label>
+          <label class="field"><span class="lbl">Fecha ingreso laboral</span><input type="date" data-path="identificacion_snapshot.fecha_ingreso"></label>
+          <label class="field"><span class="lbl">Antigüedad (años)</span><input type="number" min="0" step="0.1" data-path="identificacion_snapshot.antiguedad_anios"></label>
+        </div>
+
+        <h3>Funciones principales</h3>
+        <div class="check-grid check-grid-3">
+          <label class="check"><input type="checkbox" data-fn="administrativa"><span>Administrativa</span></label>
+          <label class="check"><input type="checkbox" data-fn="desplazamiento"><span>Desplazamiento</span></label>
+          <label class="check"><input type="checkbox" data-fn="mantenimiento"><span>Mantenimiento</span></label>
+          <label class="check"><input type="checkbox" data-fn="fotocopiado"><span>Fotocopiado</span></label>
+          <label class="check"><input type="checkbox" data-fn="atencion_telefonica"><span>Atención telefónica</span></label>
+          <label class="check"><input type="checkbox" data-fn="conduccion_vehiculos"><span>Conducción vehículos</span></label>
+        </div>
+        <label class="field" style="margin-top:0.6rem"><span class="lbl">Otra función</span>
+          <input type="text" data-path="identificacion_snapshot.funciones_otra">
+        </label>
+
+        <div class="grid grid-3" style="margin-top:1rem">
+          <label class="field"><span class="lbl">EPS</span><input type="text" data-path="identificacion_snapshot.eps"></label>
+          <label class="field"><span class="lbl">AFP</span><input type="text" data-path="identificacion_snapshot.afp"></label>
+          <label class="field"><span class="lbl">ARL</span><input type="text" data-path="identificacion_snapshot.arl"></label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. Historia ocupacional</h2>
+        <h3>Servicio militar</h3>
+        <div class="grid grid-2">
+          <label class="check"><input type="checkbox" data-path="historia_ocupacional.servicio_militar.presto"><span>Prestó servicio militar</span></label>
+          <label class="field"><span class="lbl">Tiempo (meses)</span><input type="number" min="0" data-path="historia_ocupacional.servicio_militar.tiempo_meses"></label>
+        </div>
+        <label class="field" style="margin-top:0.85rem"><span class="lbl">Accidentes, lesiones y/o secuelas (descripción)</span>
+          <textarea data-path="historia_ocupacional.accidentes_lesiones_secuelas"></textarea>
+        </label>
+        <label class="field" style="margin-top:0.6rem"><span class="lbl">Enfermedad profesional calificada por ARL</span>
+          <textarea data-path="historia_ocupacional.enfermedad_profesional_calificada_arp"></textarea>
+        </label>
+      </section>
+    </div>
+
+    <!-- ─── PASO 2: FACTORES DE RIESGO ─── -->
+    <div class="step-page" data-step="2">
+      <section class="section">
+        <h2>Factores de riesgo (paso 2 del form)</h2>
+        <p style="font-size:0.84rem;color:var(--gray-600);margin-bottom:0.85rem">Marca el nivel (1-5 o A) de cada empresa expuesta y las horas/día de exposición.</p>
+        <div id="factoresContainer"></div>
+        <div class="grid grid-2" style="margin-top:1rem">
+          <label class="field"><span class="lbl">Uso de EPP</span>
+            <select data-path="factores_riesgo.uso_epp">
+              <option value="no">No</option><option value="si">Sí</option><option value="ocasional">Ocasional</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Actividades extralaborales</span>
+            <input type="text" data-path="factores_riesgo.actividades_extralaborales">
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <!-- ─── PASO 3: HISTORIA FAMILIAR ─── -->
+    <div class="step-page" data-step="3">
+      <section class="section">
+        <h2>3. Historia familiar</h2>
+        <p style="font-size:0.84rem;color:var(--gray-600);margin-bottom:0.85rem">Marca las patologías presentes en la familia y el parentesco.</p>
+        <div id="familiarContainer"></div>
+      </section>
+    </div>
+
+    <!-- ─── PASO 4: HISTORIA PERSONAL ─── -->
+    <div class="step-page" data-step="4">
+      <section class="section">
+        <h2>4. Historia personal</h2>
+        <p style="font-size:0.84rem;color:var(--gray-600);margin-bottom:0.85rem">Marca antecedentes y descríbelos cuando aplique.</p>
+        <div id="personalContainer"></div>
+        <label class="field" style="margin-top:1rem"><span class="lbl">Aclaración general</span>
+          <textarea data-path="historia_personal.aclaracion" rows="3"></textarea>
+        </label>
+      </section>
+    </div>
+
+    <!-- ─── PASO 5: GINECOBSTÉTRICA + ESTILOS DE VIDA ─── -->
+    <div class="step-page" data-step="5">
+      <section class="section">
+        <h2>5. Historia ginecobstétrica <span style="font-size:0.7rem;color:var(--gray-500);font-weight:400">(solo si sexo F)</span></h2>
+        <div class="grid grid-3">
+          <label class="field"><span class="lbl">Ciclos</span><input type="text" placeholder="ej. 28/4" data-path="historia_ginecobstetrica.ciclos"></label>
+          <label class="field"><span class="lbl">FUM</span><input type="date" data-path="historia_ginecobstetrica.fum"></label>
+          <label class="field"><span class="lbl">FUP</span><input type="date" data-path="historia_ginecobstetrica.fup"></label>
+        </div>
+        <div class="grid grid-3" style="margin-top:0.6rem">
+          <label class="field"><span class="lbl">G</span><input type="number" min="0" data-path="historia_ginecobstetrica.g"></label>
+          <label class="field"><span class="lbl">P</span><input type="number" min="0" data-path="historia_ginecobstetrica.p"></label>
+          <label class="field"><span class="lbl">C</span><input type="number" min="0" data-path="historia_ginecobstetrica.c"></label>
+          <label class="field"><span class="lbl">A</span><input type="number" min="0" data-path="historia_ginecobstetrica.a"></label>
+          <label class="field"><span class="lbl">Vivos</span><input type="number" min="0" data-path="historia_ginecobstetrica.vivos"></label>
+          <label class="check"><input type="checkbox" data-path="historia_ginecobstetrica.dismenorrea"><span>Dismenorrea</span></label>
+        </div>
+        <div class="grid grid-3" style="margin-top:0.6rem">
+          <label class="field"><span class="lbl">Método planificación</span><input type="text" data-path="historia_ginecobstetrica.metodo_planificacion"></label>
+          <label class="field"><span class="lbl">Última citología</span><input type="date" data-path="historia_ginecobstetrica.ultima_citologia"></label>
+          <label class="field"><span class="lbl">Última eco mamaria</span><input type="date" data-path="historia_ginecobstetrica.ultima_eco_mamaria"></label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>6. Estilos de vida</h2>
+        <h3>Tabaquismo</h3>
+        <div class="grid grid-3">
+          <label class="check"><input type="checkbox" data-path="estilos_vida.tabaquismo.fuma"><span>Fuma</span></label>
+          <label class="field"><span class="lbl">Frecuencia</span>
+            <select data-path="estilos_vida.tabaquismo.frecuencia">
+              <option value="">—</option>
+              <option value="eventual_<5">Eventual &lt;5</option>
+              <option value="habitual_6-10">Habitual 6-10</option>
+              <option value="compulsivo_>=11">Compulsivo ≥11</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Años de hábito</span>
+            <select data-path="estilos_vida.tabaquismo.anios_habito">
+              <option value="">—</option><option value="1-5">1-5</option><option value="6-10">6-10</option>
+              <option value="11-20">11-20</option><option value=">20">&gt;20</option>
+            </select>
+          </label>
+        </div>
+        <h3>Exfumador</h3>
+        <div class="grid grid-2">
+          <label class="check"><input type="checkbox" data-path="estilos_vida.exfumador.es"><span>Es exfumador</span></label>
+          <label class="field"><span class="lbl">Dejó hace</span>
+            <select data-path="estilos_vida.exfumador.dejo_hace">
+              <option value="">—</option><option value="<1">&lt;1 año</option><option value="1-5">1-5 años</option>
+              <option value="6-10">6-10 años</option><option value=">10">&gt;10 años</option>
+            </select>
+          </label>
+        </div>
+        <h3>Otros</h3>
+        <div class="grid grid-3">
+          <label class="field"><span class="lbl">Licor</span>
+            <select data-path="estilos_vida.licor">
+              <option value="no">No</option><option value="ocasional">Ocasional</option><option value="si">Sí</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" data-path="estilos_vida.drogadiccion.consume"><span>Consume drogas</span></label>
+          <label class="field"><span class="lbl">Tipo</span><input type="text" data-path="estilos_vida.drogadiccion.tipo"></label>
+        </div>
+        <div class="grid grid-3" style="margin-top:0.6rem">
+          <label class="check"><input type="checkbox" data-path="estilos_vida.ejercicio.practica"><span>Practica ejercicio</span></label>
+          <label class="field"><span class="lbl">¿Cuál?</span><input type="text" data-path="estilos_vida.ejercicio.cual"></label>
+          <label class="field"><span class="lbl">Frecuencia</span><input type="text" data-path="estilos_vida.ejercicio.frecuencia"></label>
+        </div>
+        <div class="grid grid-2" style="margin-top:0.6rem">
+          <label class="check"><input type="checkbox" data-path="estilos_vida.lesiones_deportivas.tiene"><span>Tiene lesiones deportivas</span></label>
+          <label class="field"><span class="lbl">¿Cuáles?</span><input type="text" data-path="estilos_vida.lesiones_deportivas.cual"></label>
+        </div>
+      </section>
+    </div>
+
+    <!-- ─── PASO 6: REVISIÓN SISTEMAS + EXAMEN FÍSICO BÁSICO ─── -->
+    <div class="step-page" data-step="6">
+      <section class="section">
+        <h2>7. Revisión por sistemas</h2>
+        <div id="revisionContainer"></div>
+      </section>
+
+      <section class="section">
+        <h2>8. Examen físico — Datos básicos</h2>
+        <div class="grid grid-3">
+          <label class="field"><span class="lbl">Peso (kg)</span><input type="number" step="0.1" data-path="examen_fisico.peso_kg"></label>
+          <label class="field"><span class="lbl">Estatura (m)</span><input type="number" step="0.01" data-path="examen_fisico.estatura_m"></label>
+          <label class="field"><span class="lbl">IMC</span><input type="number" step="0.1" data-path="examen_fisico.imc" id="imcField"></label>
+          <label class="field"><span class="lbl">Presión arterial</span><input type="text" placeholder="118/80" data-path="examen_fisico.presion_arterial"></label>
+          <label class="field"><span class="lbl">Pulso (lpm)</span><input type="number" min="0" data-path="examen_fisico.pulso_lpm"></label>
+          <label class="field"><span class="lbl">F. Respiratoria (rpm)</span><input type="number" min="0" data-path="examen_fisico.frecuencia_respiratoria_rpm"></label>
+          <label class="field"><span class="lbl">Estado general</span>
+            <select data-path="examen_fisico.estado_general"><option value="normal">Normal</option><option value="anormal">Anormal</option></select>
+          </label>
+          <label class="field"><span class="lbl">Estado mental</span>
+            <select data-path="examen_fisico.estado_mental"><option value="normal">Normal</option><option value="anormal">Anormal</option></select>
+          </label>
+          <label class="field"><span class="lbl">Lateralidad</span>
+            <select data-path="examen_fisico.lateralidad">
+              <option value="diestro">Diestro</option><option value="zurdo">Zurdo</option><option value="ambidiestro">Ambidiestro</option>
+            </select>
+          </label>
+        </div>
+
+        <h3>Visiometría — Carta Snellen</h3>
+        <div class="grid grid-3">
+          <label class="field"><span class="lbl">Cercana OD</span><input type="text" placeholder="20/20" data-path="examen_fisico.cabeza.visiometria.snellen_cercana.od"></label>
+          <label class="field"><span class="lbl">Cercana OI</span><input type="text" placeholder="20/20" data-path="examen_fisico.cabeza.visiometria.snellen_cercana.oi"></label>
+          <label class="field"><span class="lbl">Cercana AO</span><input type="text" placeholder="20/20" data-path="examen_fisico.cabeza.visiometria.snellen_cercana.ao"></label>
+          <label class="field"><span class="lbl">Lejana OD</span><input type="text" placeholder="20/20" data-path="examen_fisico.cabeza.visiometria.snellen_lejana.od"></label>
+          <label class="field"><span class="lbl">Lejana OI</span><input type="text" placeholder="20/20" data-path="examen_fisico.cabeza.visiometria.snellen_lejana.oi"></label>
+          <label class="field"><span class="lbl">Lejana AO</span><input type="text" placeholder="20/20" data-path="examen_fisico.cabeza.visiometria.snellen_lejana.ao"></label>
+        </div>
+        <label class="field" style="margin-top:0.6rem"><span class="lbl">Observaciones visiometría</span>
+          <input type="text" data-path="examen_fisico.cabeza.visiometria.observaciones">
+        </label>
+      </section>
+    </div>
+
+    <!-- ─── PASO 7: COLUMNA + LAB + DIAGNÓSTICOS ─── -->
+    <div class="step-page" data-step="7">
+
+      <section class="section">
+        <h2>8.7 Columna vertebral</h2>
+        <div class="grid grid-3">
+          <label class="field"><span class="lbl">Curva cervical</span>
+            <select data-path="examen_fisico.columna_vertebral.curva.cervical"><option value="N">Normal</option><option value="A">Anormal</option><option value="D">Desviación</option></select>
+          </label>
+          <label class="field"><span class="lbl">Curva dorsal</span>
+            <select data-path="examen_fisico.columna_vertebral.curva.dorsal"><option value="N">Normal</option><option value="A">Anormal</option><option value="D">Desviación</option></select>
+          </label>
+          <label class="field"><span class="lbl">Curva lumbar</span>
+            <select data-path="examen_fisico.columna_vertebral.curva.lumbar"><option value="N">Normal</option><option value="A">Anormal</option><option value="D">Desviación</option></select>
+          </label>
+          <label class="check"><input type="checkbox" data-path="examen_fisico.columna_vertebral.cifosis"><span>Cifosis</span></label>
+          <label class="check"><input type="checkbox" data-path="examen_fisico.columna_vertebral.lordosis"><span>Lordosis</span></label>
+          <label class="check"><input type="checkbox" data-path="examen_fisico.columna_vertebral.dolor"><span>Dolor</span></label>
+          <label class="check"><input type="checkbox" data-path="examen_fisico.columna_vertebral.espasmo"><span>Espasmo</span></label>
+          <label class="check"><input type="checkbox" data-path="examen_fisico.columna_vertebral.estructuras_retraidas"><span>Estructuras retraídas</span></label>
+        </div>
+
+        <h3>Pruebas especiales</h3>
+        <div class="grid grid-3">
+          <label class="field"><span class="lbl">Test Schöber (cm)</span><input type="number" step="0.1" data-path="examen_fisico.columna_vertebral.pruebas_especiales.test_schober_cm"></label>
+          <label class="field"><span class="lbl">Test Wells (grados)</span><input type="number" step="0.1" data-path="examen_fisico.columna_vertebral.pruebas_especiales.test_wells_grados"></label>
+        </div>
+        <div class="check-grid check-grid-3" style="margin-top:0.6rem" id="pruebasColumna"></div>
+
+        <h3>Balance muscular</h3>
+        <div class="grid grid-2">
+          <label class="field"><span class="lbl">Fuerza abdominales</span>
+            <select data-path="examen_fisico.columna_vertebral.balance_muscular.fuerza_abdominales"><option value="normal">Normal</option><option value="anormal">Anormal</option></select>
+          </label>
+          <label class="field"><span class="lbl">Fuerza dorsales</span>
+            <select data-path="examen_fisico.columna_vertebral.balance_muscular.fuerza_dorsales"><option value="normal">Normal</option><option value="anormal">Anormal</option></select>
+          </label>
+          <label class="field"><span class="lbl">Alineación escapular</span><input type="text" data-path="examen_fisico.columna_vertebral.alineacion_escapular"></label>
+          <label class="field"><span class="lbl">Alineación pélvica</span><input type="text" data-path="examen_fisico.columna_vertebral.alineacion_pelvica"></label>
+        </div>
+
+        <label class="field" style="margin-top:0.85rem"><span class="lbl">Examen neurológico</span>
+          <textarea data-path="examen_fisico.columna_vertebral.examen_neurologico"></textarea>
+        </label>
+      </section>
+
+      <section class="section">
+        <h2>9. Exámenes de laboratorio</h2>
+        <p style="font-size:0.83rem;color:var(--gray-600);margin-bottom:0.6rem">Añade cada examen, su fecha y resultado.</p>
+        <div id="labContainer"></div>
+        <button type="button" class="btn btn-ghost" style="margin-top:0.8rem;font-size:0.82rem;padding:0.55rem 1rem" onclick="addLab()">+ Añadir examen</button>
+        <div class="grid grid-2" style="margin-top:1rem">
+          <label class="field"><span class="lbl">Hemoclasificación</span><input type="text" data-path="examenes_laboratorio.hemoclasificacion"></label>
+          <label class="field"><span class="lbl">Anotaciones</span><input type="text" data-path="examenes_laboratorio.anotaciones"></label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>10. Inmunizaciones</h2>
+        <div id="inmunContainer"></div>
+        <button type="button" class="btn btn-ghost" style="margin-top:0.8rem;font-size:0.82rem;padding:0.55rem 1rem" onclick="addInmun()">+ Añadir vacuna</button>
+      </section>
+
+      <section class="section">
+        <h2>11. Diagnósticos (CIE-10)</h2>
+        <div id="diagContainer"></div>
+        <button type="button" class="btn btn-ghost" style="margin-top:0.8rem;font-size:0.82rem;padding:0.55rem 1rem" onclick="addDiag()">+ Añadir diagnóstico</button>
+      </section>
+    </div>
+
+    <!-- ─── PASO 8: RECOMENDACIONES + CONCEPTO MÉDICO ─── -->
+    <div class="step-page" data-step="8">
+
+      <section class="section">
+        <h2>12. Recomendaciones</h2>
+        <label class="field"><span class="lbl">Texto de recomendaciones</span>
+          <textarea rows="4" data-path="recomendaciones.texto" placeholder="Recomendaciones médicas..."></textarea>
+        </label>
+        <h3>EPP recomendado</h3>
+        <div class="check-grid check-grid-3">
+          <label class="check"><input type="checkbox" data-path="recomendaciones.epp_recomendado.ojos"><span>Ojos</span></label>
+          <label class="check"><input type="checkbox" data-path="recomendaciones.epp_recomendado.oidos"><span>Oídos</span></label>
+          <label class="check"><input type="checkbox" data-path="recomendaciones.epp_recomendado.cara"><span>Cara</span></label>
+          <label class="check"><input type="checkbox" data-path="recomendaciones.epp_recomendado.cabeza"><span>Cabeza</span></label>
+          <label class="check"><input type="checkbox" data-path="recomendaciones.epp_recomendado.respiracion"><span>Respiración</span></label>
+          <label class="check"><input type="checkbox" data-path="recomendaciones.epp_recomendado.traje"><span>Traje</span></label>
+        </div>
+        <div class="grid grid-2" style="margin-top:0.6rem">
+          <label class="check"><input type="checkbox" data-path="recomendaciones.epp_recomendado.otro.marcado"><span>Otro EPP</span></label>
+          <label class="field"><span class="lbl">¿Cuál?</span><input type="text" data-path="recomendaciones.epp_recomendado.otro.cual"></label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>13-15. Concepto médico</h2>
+        <p style="font-size:0.83rem;color:var(--gray-600);margin-bottom:0.85rem">Diligencia el bloque que corresponda al tipo de examen elegido en el paso 1.</p>
+
+        <h3>Si Ingreso o Reintegro</h3>
+        <label class="field"><span class="lbl">Concepto</span>
+          <select data-path="concepto_medico.concepto_ingreso_reintegro">
+            <option value="">—</option>
+            <option value="apto">Apto</option>
+            <option value="apto_restricciones_no_interfiere">Apto con restricciones que no interfieren</option>
+            <option value="apto_restricciones_limita">Apto con restricciones que limitan</option>
+            <option value="aplazado">Aplazado</option>
+            <option value="no_apto">No apto</option>
+          </select>
+        </label>
+        <div class="grid grid-2" style="margin-top:0.6rem">
+          <label class="check"><input type="checkbox" data-path="concepto_medico.requiere_reubicacion.si"><span>Requiere reubicación</span></label>
+          <label class="field"><span class="lbl">Restricciones</span><input type="text" data-path="concepto_medico.requiere_reubicacion.restricciones"></label>
+        </div>
+
+        <h3>Si Periódico</h3>
+        <div class="grid grid-2">
+          <label class="check"><input type="checkbox" data-path="concepto_medico.concepto_periodico.normal"><span>Normal</span></label>
+          <label class="field"><span class="lbl">Descripción</span><input type="text" data-path="concepto_medico.concepto_periodico.descripcion"></label>
+          <label class="check"><input type="checkbox" data-path="concepto_medico.concepto_periodico.remision.hay"><span>Remisión</span></label>
+          <label class="field"><span class="lbl">EPS / ARL</span><input type="text" data-path="concepto_medico.concepto_periodico.remision.eps"></label>
+        </div>
+
+        <h3>Si Retiro</h3>
+        <div class="grid grid-2">
+          <label class="check"><input type="checkbox" data-path="concepto_medico.concepto_retiro.normal"><span>Normal</span></label>
+          <label class="field"><span class="lbl">Descripción</span><input type="text" data-path="concepto_medico.concepto_retiro.descripcion"></label>
+          <label class="check"><input type="checkbox" data-path="concepto_medico.concepto_retiro.remision.hay"><span>Remisión</span></label>
+          <label class="field"><span class="lbl">EPS / ARL</span><input type="text" data-path="concepto_medico.concepto_retiro.remision.eps"></label>
+        </div>
+
+        <label class="field" style="margin-top:0.85rem"><span class="lbl">Observaciones del concepto</span>
+          <textarea data-path="concepto_medico.observaciones" rows="3"></textarea>
+        </label>
+      </section>
+
+      <section class="section">
+        <h2>Observaciones generales y seguimiento</h2>
+        <label class="field"><span class="lbl">Texto libre</span>
+          <textarea data-path="observaciones_seguimiento" rows="4"></textarea>
+        </label>
+      </section>
+    </div>
+
+  </form>
+</main>
+
+<div class="nav-buttons">
+  <div class="left">
+    <button type="button" class="btn btn-ghost" id="prevBtn">← Anterior</button>
+    <button type="button" class="btn btn-ghost" onclick="clearDraft()" style="font-size:0.78rem">🗑 Borrador</button>
+  </div>
+  <div class="right">
+    <button type="button" class="btn btn-primary" id="nextBtn">Siguiente →</button>
+    <button type="button" class="btn btn-success" id="saveBtn" style="display:none">✓ Guardar historia</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES, CODIGOS_FORMATO, TIPOS_DOCUMENTO, getNextFolio } from './js/firebase-config.js';
+  const CODIGO_FORMATO_HISTORIA = CODIGOS_FORMATO.HISTORIA;
+  import { showEmailGate } from './js/email-gate.js';
+  import { conectarInputAciudades, vincularEdadAFechaNacimiento, calcularEdad } from './js/utils.js';
+  import { updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null;
+  let medicoData  = {};
+  let expedienteIdActual = null;
+  let pacienteIdActual = null;
+
+  // Defensivo: si en algún momento el span#codFormato no existe, no romper la página
+  const codFormatoEl = document.getElementById('codFormato');
+  if (codFormatoEl) codFormatoEl.textContent = CODIGO_FORMATO_HISTORIA;
+  document.getElementById('fecha_examen').value = new Date().toISOString().split('T')[0];
+
+  // Capturar ?expediente= por URL
+  const _url = new URL(window.location.href);
+  const _expedienteFromUrl = _url.searchParams.get('expediente');
+
+  // Conectar datalist DIVIPOLA a lugar_expedicion / lugar_nacimiento (ahora ciudades)
+  document.querySelectorAll('[data-path="identificacion_snapshot.lugar_expedicion"], [data-path="identificacion_snapshot.lugar_nacimiento"]').forEach(el => {
+    conectarInputAciudades(el, 'lstCiudadesHC');
+  });
+
+  // Edad automática a partir de fecha de nacimiento
+  const fechaNacEl = document.querySelector('[data-path="identificacion_snapshot.fecha_nacimiento"]');
+  const edadEl = document.querySelector('[data-path="identificacion_snapshot.edad"]');
+  if (fechaNacEl && edadEl) vincularEdadAFechaNacimiento(fechaNacEl, edadEl);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const userSnap = await getDoc(doc(db, 'users', user.uid));
+    const userData = userSnap.exists() ? userSnap.data() : {};
+    if (userData.rol !== ROLES.MEDICO && userData.rol !== ROLES.ADMIN) {
+      window.location.href = 'portal.html'; return;
+    }
+    currentUser = user;
+    medicoData  = userData;
+
+    if (_expedienteFromUrl) await precargarDesdeExpediente(_expedienteFromUrl);
+  });
+
+  async function precargarDesdeExpediente(expId) {
+    try {
+      const exp = await getDoc(doc(db, 'expedientes', expId));
+      if (!exp.exists()) return;
+      const e = exp.data();
+      expedienteIdActual = expId;
+      const setVal = (id, v) => { const el = document.getElementById(id); if (el && v != null && v !== '') el.value = v; };
+      const setPath = (path, v) => { const el = document.querySelector(`[data-path="${path}"]`); if (el && v != null && v !== '') el.value = v; };
+
+      setVal('empresa_id', e.empresa_id || '');
+      let snap = e.paciente_snapshot || {};
+      if (e.paciente_id) {
+        pacienteIdActual = e.paciente_id;
+        const pSnap = await getDoc(doc(db, 'pacientes', e.paciente_id));
+        if (pSnap.exists()) snap = { ...snap, ...pSnap.data() };
+      }
+      setVal('nombres', snap.nombres);
+      setVal('apellidos', snap.apellidos);
+      setVal('tipo_documento', snap.tipo_documento);
+      setVal('numero_documento', snap.numero_documento);
+      setVal('paciente_id', pacienteIdActual || '');
+      setPath('identificacion_snapshot.fecha_nacimiento', snap.fecha_nacimiento);
+      setPath('identificacion_snapshot.sexo', snap.sexo);
+      setPath('identificacion_snapshot.estado_civil', snap.estado_civil);
+      setPath('identificacion_snapshot.escolaridad', snap.escolaridad);
+      setPath('identificacion_snapshot.profesion', snap.profesion);
+      setPath('identificacion_snapshot.cargo', snap.cargo);
+      setPath('identificacion_snapshot.lugar_nacimiento', snap.ciudad_nacimiento || snap.lugar_nacimiento || '');
+      setPath('identificacion_snapshot.lugar_expedicion', snap.ciudad_expedicion || snap.lugar_expedicion || '');
+      setPath('identificacion_snapshot.eps', snap.eps);
+      setPath('identificacion_snapshot.afp', snap.afp);
+      setPath('identificacion_snapshot.arl', snap.arl);
+      if (snap.fecha_nacimiento) {
+        const edad = calcularEdad(snap.fecha_nacimiento);
+        if (edad != null) setPath('identificacion_snapshot.edad', edad);
+      }
+    } catch (err) { console.warn('precargarDesdeExpediente:', err); }
+  }
+
+  // ──────── DATOS PARA RENDER DINÁMICO ────────
+
+  const FACTORES = {
+    'Físico': ['calor','frio','alta_iluminacion','baja_iluminacion','presion','rad_no_ionizante','rad_ionizante','ruido','vibracion'],
+    'Químico': ['neblinas','humos','polvos','liquidos','gases_vapores','contacto_producto_quimico'],
+    'Físico-químico': ['incendio','explosion'],
+    'Ergonómico': ['sentado_prolongado','de_pie_prolongado','movimientos_repetitivos','levantamiento_cargas'],
+    'Eléctrico': ['contacto_directo','contacto_indirecto','carga_estatica'],
+    'Psicolaboral': ['atencion_publico','monotonia','sobrecarga_laboral','turnos','alto_ritmo','conflicto_relacion'],
+    'Público': ['transito','terrorismo','secuestro','deportivo'],
+    'Biológico': ['animales','microorganismo','fluido_corporal'],
+    'Locativo': ['orden_aseo_deficiente','instalaciones_mal_estado','almacenamiento_deficiente','elementos_cortantes'],
+    'Mecánico': ['caidas','herramienta_manual','maquinas','proyecciones']
+  };
+  const FACTORES_PATH = {
+    'Físico': 'fisico', 'Químico': 'quimico', 'Físico-químico': 'fisicoquimico',
+    'Ergonómico': 'ergonomico', 'Eléctrico': 'electrico', 'Psicolaboral': 'psicolaboral',
+    'Público': 'publico', 'Biológico': 'biologico', 'Locativo': 'locativo', 'Mecánico': 'mecanico'
+  };
+
+  const FAMILIAR = ['diabetes','cardiovascular','cancer','respiratorios','tbc','reumatologicos','neurologicos','mentales','digestivos','otros'];
+
+  const PERSONAL = {
+    'traumaticos':            ['fracturas','luxaciones','esguinces','otros_traumas'],
+    'alergicos':              ['asma','rinitis','dermatitis','urticaria_otros'],
+    'orl':                    ['otitis','sinusitis','hipoacusia','otras'],
+    'endocrino_metabolico':   ['dislipidemia','diabetes','enf_tiroideas','obesidad_otros'],
+    'osteomuscular':          ['trastornos_columna','tendinitis_bursitis','tunel_carpiano','osteoartritis_otros'],
+    'digestivas':             ['gastritis','ulceras','colitis','otros'],
+    'infecciosas':            ['ets','tbc','hepatitis','zoonosis','amigdalitis_cronica','otras'],
+    'cardiovascular_respiratorio': ['hipertension','infarto','angina','epoc','bronquitis','varices_otros'],
+    'neurologica_mental':     ['epilepsia','migrana_cefaleas','psiquiatricas','vertigo_otras'],
+    'urologica':              ['litiasis_renal','infeccion_urinaria']
+  };
+  const PERSONAL_SIMPLES = ['tumorales','toxicos','hematologicas','transfusionales','quirurgicos','medicamentos'];
+
+  const REVISION_SISTEMAS = ['organos_sentidos','neurologico_mental','cardiorrespiratorio','metabolico_endocrino','gastrointestinal','genitourinario','osteomuscular','piel_anexos'];
+
+  const PRUEBAS_COLUMNA = ['lassegue','valsalva','neri','wassermann','spurlin','patrick','nigram','wadell'];
+
+  // ──────── RENDER DINÁMICO ────────
+
+  function humanize(s) { return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
+
+  // Factores de riesgo
+  const facCont = document.getElementById('factoresContainer');
+  Object.entries(FACTORES).forEach(([cat, items]) => {
+    const h = document.createElement('h3'); h.textContent = cat; facCont.appendChild(h);
+    items.forEach(it => {
+      const row = document.createElement('div'); row.className = 'factor-row';
+      const path = `factores_riesgo.${FACTORES_PATH[cat]}.${it}`;
+      row.innerHTML = `
+        <span class="lbl-fac">${humanize(it)}</span>
+        <select data-path="${path}.nivel"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>A</option></select>
+        <input type="number" min="0" step="0.5" placeholder="horas/día" data-path="${path}.horas">
+      `;
+      facCont.appendChild(row);
+    });
+  });
+
+  // Historia familiar
+  const famCont = document.getElementById('familiarContainer');
+  FAMILIAR.forEach(p => {
+    const row = document.createElement('div'); row.className = 'pato-row';
+    row.innerHTML = `
+      <span class="pato-name">${humanize(p)}</span>
+      <label class="check"><input type="checkbox" data-path="historia_familiar.${p}.presente"><span>Presente</span></label>
+      <input type="text" placeholder="Parentesco" data-path="historia_familiar.${p}.parentesco">
+    `;
+    famCont.appendChild(row);
+  });
+
+  // Historia personal
+  const perCont = document.getElementById('personalContainer');
+  Object.entries(PERSONAL).forEach(([grupo, items]) => {
+    const h = document.createElement('h3'); h.textContent = humanize(grupo); perCont.appendChild(h);
+    items.forEach(it => {
+      const row = document.createElement('div'); row.className = 'pato-row';
+      row.innerHTML = `
+        <span class="pato-name">${humanize(it)}</span>
+        <label class="check"><input type="checkbox" data-path="historia_personal.${grupo}.${it}.presente"><span>Presente</span></label>
+        <input type="text" placeholder="Descripción" data-path="historia_personal.${grupo}.${it}.descripcion">
+      `;
+      perCont.appendChild(row);
+    });
+  });
+  // Personal simples
+  const hSim = document.createElement('h3'); hSim.textContent = 'Otros'; perCont.appendChild(hSim);
+  PERSONAL_SIMPLES.forEach(it => {
+    const row = document.createElement('div'); row.className = 'pato-row';
+    const showDesc = ['tumorales','quirurgicos','medicamentos'].includes(it);
+    row.innerHTML = `
+      <span class="pato-name">${humanize(it)}</span>
+      <label class="check"><input type="checkbox" data-path="historia_personal.${it}.presente"><span>Presente</span></label>
+      ${showDesc ? `<input type="text" placeholder="Descripción" data-path="historia_personal.${it}.descripcion">` : '<span></span>'}
+    `;
+    perCont.appendChild(row);
+  });
+
+  // Revisión por sistemas
+  const revCont = document.getElementById('revisionContainer');
+  REVISION_SISTEMAS.forEach(s => {
+    const row = document.createElement('div'); row.className = 'pato-row';
+    row.innerHTML = `
+      <span class="pato-name">${humanize(s)}</span>
+      <label class="check"><input type="checkbox" data-path="revision_sistemas.${s}.normal"><span>Normal</span></label>
+      <input type="text" placeholder="Descripción si anormal" data-path="revision_sistemas.${s}.descripcion">
+    `;
+    revCont.appendChild(row);
+  });
+
+  // Pruebas columna
+  const pruCont = document.getElementById('pruebasColumna');
+  PRUEBAS_COLUMNA.forEach(p => {
+    const lbl = document.createElement('label'); lbl.className = 'check';
+    lbl.innerHTML = `<input type="checkbox" data-path="examen_fisico.columna_vertebral.pruebas_especiales.${p}_positivo"><span>${humanize(p)} (+)</span>`;
+    pruCont.appendChild(lbl);
+  });
+
+  // Listas dinámicas (laboratorio, inmunizaciones, diagnósticos)
+  function makeRow(parent, fields, removeFn) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;gap:0.5rem;align-items:center;padding:0.4rem 0;border-bottom:1px dashed var(--gray-100)';
+    row.style.gridTemplateColumns = fields.map(f => f.w || '1fr').join(' ') + ' auto';
+    fields.forEach(f => {
+      const el = document.createElement(f.tag || 'input');
+      if (f.type) el.type = f.type;
+      if (f.placeholder) el.placeholder = f.placeholder;
+      el.dataset.k = f.k;
+      el.style.cssText = 'padding:0.45rem 0.65rem;border:1.5px solid var(--gray-100);border-radius:6px;font-family:inherit;font-size:0.85rem;outline:none';
+      el.addEventListener('focus', () => el.style.borderColor = 'var(--green)');
+      el.addEventListener('blur', () => el.style.borderColor = 'var(--gray-100)');
+      row.appendChild(el);
+    });
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.textContent = '×';
+    btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:1.4rem;color:var(--error);padding:0 0.4rem';
+    btn.onclick = () => row.remove();
+    row.appendChild(btn);
+    parent.appendChild(row);
+    return row;
+  }
+
+  window.addLab = function() {
+    makeRow(document.getElementById('labContainer'), [
+      { k:'examen', placeholder:'Examen', w:'2fr' },
+      { k:'fecha', type:'date', w:'140px' },
+      { k:'resultado', placeholder:'Resultado', w:'2fr' }
+    ]);
+  };
+  window.addInmun = function() {
+    makeRow(document.getElementById('inmunContainer'), [
+      { k:'vacuna', placeholder:'Vacuna', w:'2fr' },
+      { k:'fecha', type:'date', w:'140px' },
+      { k:'proxima_dosis', type:'date', w:'140px' }
+    ]);
+  };
+  window.addDiag = function() {
+    makeRow(document.getElementById('diagContainer'), [
+      { k:'codigo_cie10', placeholder:'CIE-10 (ej. K429)', w:'140px' },
+      { k:'descripcion', placeholder:'Descripción', w:'1fr' }
+    ]);
+  };
+  // Inicializar al menos uno
+  addLab(); addInmun(); addDiag();
+
+  // ──────── STEPPER ────────
+  const STEPS = [
+    'Identificación','Riesgos','Familiar','Personal','Ginec/Estilos','Revisión/Físico','Columna/Lab','Concepto'
+  ];
+  const stepper = document.getElementById('stepper');
+  STEPS.forEach((label, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'step-btn' + (i === 0 ? ' active' : '');
+    b.dataset.step = i + 1;
+    b.innerHTML = `<span class="num">${i+1}</span>${label}`;
+    b.onclick = () => goStep(i + 1);
+    stepper.appendChild(b);
+  });
+
+  let currentStep = 1;
+  function goStep(n) {
+    if (n < 1 || n > STEPS.length) return;
+    currentStep = n;
+    document.querySelectorAll('.step-page').forEach(p => p.classList.toggle('active', p.dataset.step == n));
+    document.querySelectorAll('.step-btn').forEach((b, i) => {
+      b.classList.toggle('active', i + 1 === n);
+      b.classList.toggle('done', i + 1 < n);
+    });
+    document.getElementById('prevBtn').disabled = n === 1;
+    document.getElementById('nextBtn').style.display = n < STEPS.length ? '' : 'none';
+    document.getElementById('saveBtn').style.display = n === STEPS.length ? '' : 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.getElementById('prevBtn').onclick = () => goStep(currentStep - 1);
+  document.getElementById('nextBtn').onclick = () => goStep(currentStep + 1);
+
+  // ──────── DRAFT (localStorage) ────────
+  const DRAFT_KEY = 'rmips_draft_historia_v1';
+  function snapshotForm() {
+    const d = {};
+    document.querySelectorAll('[data-path]').forEach(el => {
+      d[el.dataset.path] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    // top-level inputs
+    ['tipo_examen','fecha_examen','empresa_id','paciente_id','nombres','apellidos','tipo_documento','numero_documento'].forEach(id => {
+      const el = document.getElementById(id); if (el) d[`__${id}`] = el.value;
+    });
+    d.__funciones = Array.from(document.querySelectorAll('[data-fn]')).filter(el => el.checked).map(el => el.dataset.fn);
+    return d;
+  }
+  function restoreDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY); if (!raw) return;
+      const d = JSON.parse(raw);
+      Object.entries(d).forEach(([k, v]) => {
+        if (k === '__funciones') {
+          (v || []).forEach(fn => { const el = document.querySelector(`[data-fn="${fn}"]`); if (el) el.checked = true; });
+          return;
+        }
+        if (k.startsWith('__')) {
+          const el = document.getElementById(k.slice(2)); if (el) el.value = v;
+          return;
+        }
+        const el = document.querySelector(`[data-path="${CSS.escape(k)}"]`);
+        if (el) { if (el.type === 'checkbox') el.checked = !!v; else el.value = v ?? ''; }
+      });
+      const ts = localStorage.getItem(DRAFT_KEY + '_ts');
+      if (ts) { document.getElementById('draftBadge').style.display = 'flex'; document.getElementById('draftTime').textContent = '· ' + new Date(+ts).toLocaleString('es-CO'); }
+    } catch (_) {}
+  }
+  function saveDraft() {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshotForm()));
+      localStorage.setItem(DRAFT_KEY + '_ts', Date.now().toString());
+      document.getElementById('draftBadge').style.display = 'flex';
+      document.getElementById('draftTime').textContent = '· ' + new Date().toLocaleString('es-CO');
+    } catch (_) {}
+  }
+  window.clearDraft = function() {
+    if (!confirm('¿Borrar el borrador y empezar de cero?')) return;
+    localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_ts');
+    location.reload();
+  };
+  setTimeout(restoreDraft, 200);
+  setInterval(saveDraft, 30000);
+
+  // IMC automático
+  const peso = document.querySelector('[data-path="examen_fisico.peso_kg"]');
+  const est  = document.querySelector('[data-path="examen_fisico.estatura_m"]');
+  function calcIMC() {
+    const p = parseFloat(peso.value), e = parseFloat(est.value);
+    if (p > 0 && e > 0) document.getElementById('imcField').value = (p / (e * e)).toFixed(1);
+  }
+  peso.addEventListener('input', calcIMC); est.addEventListener('input', calcIMC);
+
+  // ──────── HELPERS GUARDADO ────────
+  function setNested(obj, path, value) {
+    const parts = path.split('.'); let cur = obj;
+    for (let i = 0; i < parts.length - 1; i++) { cur[parts[i]] = cur[parts[i]] || {}; cur = cur[parts[i]]; }
+    cur[parts[parts.length - 1]] = value;
+  }
+  function showAlert(type, msg) {
+    const a = document.getElementById('alert');
+    a.className = 'alert show alert-' + type; a.textContent = msg;
+    a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ──────── SUBMIT ────────
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    if (!currentUser) { showAlert('error', 'Sesión inválida.'); return; }
+    const tipo_documento   = document.getElementById('tipo_documento').value;
+    const numero_documento = document.getElementById('numero_documento').value.trim();
+    const fecha_examen_str = document.getElementById('fecha_examen').value;
+    const empresa_id       = document.getElementById('empresa_id').value.trim() || 'PARTICULAR';
+    const tipo_examen      = document.getElementById('tipo_examen').value;
+    const nombres          = document.getElementById('nombres').value.trim();
+    const apellidos        = document.getElementById('apellidos').value.trim();
+
+    if (!nombres || !apellidos || !numero_documento || !fecha_examen_str) {
+      showAlert('error', 'Faltan campos obligatorios del paso 1.'); goStep(1); return;
+    }
+
+    let folio;
+    try {
+      folio = await getNextFolio(TIPOS_DOCUMENTO.HISTORIA, db);
+    } catch (err) { showAlert('error', 'Folio: ' + err.message); return; }
+
+    const data = {
+      paciente_id: pacienteIdActual || document.getElementById('paciente_id').value.trim() || null,
+      expediente_id: expedienteIdActual || null,
+      medico_id:   currentUser.uid,
+      empresa_id,
+      codigo_formato: CODIGO_FORMATO_HISTORIA,
+      folio,
+      tipo_examen,
+      fecha_examen: new Date(fecha_examen_str),
+
+      identificacion_snapshot: {
+        nombres, apellidos, tipo_documento, numero_documento,
+        funciones_principales: Array.from(document.querySelectorAll('[data-fn]')).filter(el => el.checked).map(el => el.dataset.fn)
+      },
+
+      historia_ocupacional:    { servicio_militar: { presto:false, tiempo_meses:null }, accidentes_lesiones_secuelas:'', enfermedad_profesional_calificada_arp:'' },
+      factores_riesgo:         { uso_epp:'no', actividades_extralaborales:'' },
+      historia_familiar:       {},
+      historia_personal:       {},
+      historia_ginecobstetrica:{},
+      estilos_vida:            {},
+      revision_sistemas:       {},
+      examen_fisico:           {},
+      examenes_laboratorio:    { lista: [], hemoclasificacion:'', anotaciones:'' },
+      inmunizaciones:          [],
+      diagnosticos:            [],
+      recomendaciones:         { texto:'', epp_recomendado:{ ojos:false, oidos:false, cara:false, cabeza:false, respiracion:false, traje:false, otro:{ marcado:false, cual:'' } } },
+      concepto_medico:         {},
+      observaciones_seguimiento: '',
+
+      firmas: {
+        paciente: { numero_documento, firma_url: null, fecha: null },
+        medico:   { uid: currentUser.uid, nombre: ((medicoData.nombres||'') + ' ' + (medicoData.apellidos||'')).trim(), registro_profesional: medicoData.registro_profesional || null, firma_url: medicoData.firma_url || null, fecha: serverTimestamp() }
+      },
+
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+
+    // Aplicar todos los inputs con data-path
+    document.querySelectorAll('[data-path]').forEach(el => {
+      let value = el.type === 'checkbox' ? el.checked : el.value;
+      if (el.tagName === 'INPUT' && el.type === 'number' && value !== '') value = Number(value);
+      if (el.type === 'date' && value) value = new Date(value);
+      setNested(data, el.dataset.path, value);
+    });
+
+    // Listas dinámicas
+    data.examenes_laboratorio.lista = Array.from(document.querySelectorAll('#labContainer > div'))
+      .map(r => ({
+        examen:    r.querySelector('[data-k="examen"]')?.value || '',
+        fecha:     r.querySelector('[data-k="fecha"]')?.value ? new Date(r.querySelector('[data-k="fecha"]').value) : null,
+        resultado: r.querySelector('[data-k="resultado"]')?.value || ''
+      }))
+      .filter(x => x.examen);
+    data.inmunizaciones = Array.from(document.querySelectorAll('#inmunContainer > div'))
+      .map(r => ({
+        vacuna:        r.querySelector('[data-k="vacuna"]')?.value || '',
+        fecha:         r.querySelector('[data-k="fecha"]')?.value ? new Date(r.querySelector('[data-k="fecha"]').value) : null,
+        proxima_dosis: r.querySelector('[data-k="proxima_dosis"]')?.value ? new Date(r.querySelector('[data-k="proxima_dosis"]').value) : null
+      }))
+      .filter(x => x.vacuna);
+    data.diagnosticos = Array.from(document.querySelectorAll('#diagContainer > div'))
+      .map(r => ({
+        codigo_cie10: r.querySelector('[data-k="codigo_cie10"]')?.value || '',
+        descripcion:  r.querySelector('[data-k="descripcion"]')?.value || ''
+      }))
+      .filter(x => x.codigo_cie10 || x.descripcion);
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      await setDoc(doc(db, 'historias_clinicas', folio), data);
+      // Si vino de un expediente, actualizar checklist y volver al expediente
+      if (expedienteIdActual) {
+        try {
+          await updateDoc(doc(db, 'expedientes', expedienteIdActual), {
+            'examenes_estado.historia_clinica': 'completado',
+            'documentos.historia_clinica': folio,
+            updatedAt: serverTimestamp()
+          });
+        } catch (_) {}
+      }
+      localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '_ts');
+      document.getElementById('folioVal').textContent = folio;
+      document.getElementById('folio').classList.add('show');
+      showAlert('success', '✓ Historia guardada con folio ' + folio);
+      btn.textContent = 'Guardado ✓';
+      const dest = expedienteIdActual
+        ? ('expediente.html?id=' + encodeURIComponent(expedienteIdActual))
+        : 'dashboard-empleado.html';
+      setTimeout(() => window.location.href = dest, 2000);
+    } catch (err) {
+      console.error(err);
+      showAlert('error', 'Error al guardar: ' + (err.message || err.code));
+      btn.disabled = false; btn.textContent = '✓ Guardar historia';
+    }
+  });
+</script>
+</body>
+</html>

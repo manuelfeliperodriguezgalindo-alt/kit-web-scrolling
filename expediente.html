@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Expediente · Reina María IPS</title>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="prefetch" href="audiometria.html">
+<link rel="prefetch" href="visiometria.html">
+<link rel="prefetch" href="optometria.html">
+<link rel="prefetch" href="nueva-historia-clinica.html">
+<link rel="prefetch" href="nuevo-concepto-aptitud.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#1E6FB3;--blue-dark:#0E3D6E;--blue-xlight:#EAF3FB;--green:#4FB3A2;--green-dark:#2F8D7B;--green-soft:#E6F4F1;--yellow:#FFD600;--yellow-soft:#FFF8E1;--yellow-dark:#F9A825;--white:#FFFFFF;--gray-50:#F7FAFC;--gray-100:#EEF3F7;--gray-300:#CBD5E0;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--text:#1A2233;--error:#DC2626;--shadow:0 4px 18px rgba(14,61,110,0.08);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--gray-50);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:0.85rem 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+  header img{height:38px;width:auto;max-width:150px;object-fit:contain;background:white;padding:4px 8px;border-radius:8px;}
+  header .back{color:rgba(255,255,255,0.85);font-size:0.85rem;font-weight:500;}
+  header .back:hover{color:var(--yellow);}
+  main{max-width:1100px;margin:0 auto;padding:1.5rem 5% 4rem;}
+  h1.title{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,1.9rem);color:var(--blue-dark);margin-bottom:0.2rem;}
+  .subtitle{color:var(--gray-600);font-size:0.92rem;margin-bottom:1.5rem;}
+  .estado-pill{display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+  .estado-recepcion{background:var(--blue-xlight);color:var(--blue-dark);}
+  .estado-examenes {background:var(--yellow-soft);color:var(--yellow-dark);}
+  .estado-revision {background:#FCE7F3;color:#831843;}
+  .estado-cerrado  {background:var(--green-soft);color:var(--green-dark);}
+
+  .card{background:var(--white);border-radius:16px;padding:1.4rem;box-shadow:var(--shadow);margin-bottom:1rem;border:1px solid var(--gray-100);}
+  .card h2{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-dark);margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+  .card h2::before{content:'';width:5px;height:22px;background:var(--green);border-radius:3px;}
+
+  .info-grid{display:grid;gap:0.7rem;grid-template-columns:1fr;}
+  @media(min-width:600px){.info-grid{grid-template-columns:repeat(3,1fr);}}
+  .info-item{font-size:0.85rem;color:var(--gray-700);}
+  .info-item strong{display:block;font-size:0.7rem;color:var(--blue-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;font-weight:700;}
+
+  .examenes-grid{display:grid;gap:0.85rem;grid-template-columns:1fr;}
+  @media(min-width:600px){.examenes-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(min-width:900px){.examenes-grid{grid-template-columns:repeat(3,1fr);}}
+  .examen-card{
+    background:var(--gray-50);border-radius:12px;padding:1rem;
+    border:2px solid transparent;display:flex;flex-direction:column;gap:0.5rem;
+    transition:all 0.18s;
+  }
+  .examen-card.pendiente{border-color:var(--gray-100);}
+  .examen-card.completado{border-color:var(--green);background:var(--green-soft);}
+  .examen-titulo{font-weight:700;color:var(--blue-dark);font-size:0.95rem;display:flex;justify-content:space-between;align-items:center;}
+  .examen-estado{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:2px 8px;border-radius:50px;}
+  .est-pend{background:var(--gray-100);color:var(--gray-600);}
+  .est-done{background:var(--green);color:white;}
+  .examen-folio{font-family:ui-monospace,monospace;font-size:0.78rem;color:var(--gray-500);}
+  .examen-action{
+    display:inline-flex;align-items:center;justify-content:center;
+    margin-top:0.4rem;padding:0.5rem 0.85rem;border-radius:8px;
+    font-size:0.82rem;font-weight:600;text-align:center;
+  }
+  .action-crear{background:var(--blue);color:white;}
+  .action-crear:hover{background:var(--blue-dark);}
+  .action-ver{background:transparent;color:var(--green-dark);border:1.5px solid var(--green);}
+  .action-ver:hover{background:var(--green-soft);}
+
+  .workflow-actions{display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:1rem;}
+  .btn{border:none;cursor:pointer;padding:0.7rem 1.2rem;border-radius:10px;font-size:0.88rem;font-weight:700;font-family:inherit;}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;}
+  .btn-success{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;}
+  .btn-warning{background:linear-gradient(135deg,var(--yellow),var(--yellow-dark));color:var(--blue-dark);}
+  .btn-ghost{background:transparent;color:var(--gray-600);border:1.5px solid var(--gray-100);}
+  .btn:hover:not(:disabled){transform:translateY(-1px);}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+  .adjuntos-list{display:grid;gap:0.5rem;margin-top:0.6rem;}
+  .adjunto-item{background:var(--gray-50);padding:0.7rem 0.85rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;font-size:0.85rem;}
+  .adjunto-item strong{color:var(--blue-dark);}
+  .adjunto-item small{color:var(--gray-500);font-size:0.75rem;}
+
+  .empty{text-align:center;padding:2rem;color:var(--gray-500);font-size:0.88rem;}
+
+  .alert{padding:0.85rem 1rem;border-radius:10px;font-size:0.88rem;margin-bottom:1rem;display:none;}
+  .alert.show{display:block;}
+  .alert-error{background:#FEF2F2;color:var(--error);border:1px solid #FECACA;}
+  .alert-success{background:var(--green-soft);color:var(--green-dark);border:1px solid #BBF7D0;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:white;border-radius:18px;padding:1.5rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+  .modal h3{font-family:'Playfair Display',serif;color:var(--blue-dark);margin-bottom:0.4rem;}
+  .modal p{font-size:0.85rem;color:var(--gray-600);margin-bottom:1rem;}
+  .modal label.field{display:block;margin-bottom:0.7rem;}
+  .modal .lbl{font-size:0.74rem;font-weight:600;color:var(--blue-dark);margin-bottom:0.25rem;display:block;}
+  .modal input,.modal select,.modal textarea{width:100%;padding:0.55rem 0.75rem;border:1.5px solid var(--gray-100);border-radius:8px;font-family:inherit;font-size:0.88rem;outline:none;}
+  .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--green);}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main id="loading" style="text-align:center;padding:4rem;color:var(--gray-500)">Cargando expediente...</main>
+
+<main id="content" style="display:none">
+  <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.5rem">
+    <h1 class="title" id="title">Expediente</h1>
+    <span class="estado-pill" id="estadoPill">—</span>
+  </div>
+  <p class="subtitle" id="subtitle">—</p>
+
+  <div id="alert" class="alert"></div>
+
+  <!-- Info del paciente -->
+  <section class="card">
+    <h2>Paciente</h2>
+    <div class="info-grid" id="pacienteInfo"></div>
+  </section>
+
+  <!-- Exámenes y documentos -->
+  <section class="card">
+    <h2>Documentos y exámenes</h2>
+    <div class="examenes-grid" id="examenesGrid"></div>
+    <div class="workflow-actions" id="workflowActions"></div>
+  </section>
+
+  <!-- Adjuntos tercerizados -->
+  <section class="card">
+    <h2>Adjuntos / exámenes externos</h2>
+    <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:0.6rem">
+      Exámenes realizados por terceros (laboratorios externos, imágenes diagnósticas, certificados). Puedes subir el archivo (PDF o imagen, hasta 10 MB) o solo registrar un link externo.
+    </p>
+    <button type="button" class="btn btn-ghost" onclick="openAdjuntoModal()" id="btnAddAdjunto">+ Registrar examen externo</button>
+    <div class="adjuntos-list" id="adjuntosList"></div>
+  </section>
+
+  <!-- Actividad -->
+  <section class="card">
+    <h2>Actividad reciente</h2>
+    <div id="logList" style="font-size:0.85rem;color:var(--gray-600)"></div>
+  </section>
+</main>
+
+<!-- Modal adjunto -->
+<div class="modal-overlay" id="adjuntoModal">
+  <div class="modal">
+    <h3>Registrar examen externo</h3>
+    <p>Metadatos del examen tercerizado. Sube el archivo (PDF o imagen) o registra solo un link externo.</p>
+    <label class="field"><span class="lbl">Tipo *</span>
+      <select id="adj_tipo">
+        <option value="lab_externo">Laboratorio externo</option>
+        <option value="imagen_diagnostica">Imagen diagnóstica</option>
+        <option value="examen_tercerizado">Examen tercerizado</option>
+        <option value="certificado_externo">Certificado externo</option>
+        <option value="otro">Otro</option>
+      </select>
+    </label>
+    <label class="field"><span class="lbl">Título *</span><input type="text" id="adj_titulo" placeholder="Ej: Espirometría externa"></label>
+    <label class="field"><span class="lbl">Proveedor / Laboratorio</span><input type="text" id="adj_proveedor" placeholder="Ej: Hospital San Rafael"></label>
+    <label class="field"><span class="lbl">Fecha del examen</span><input type="date" id="adj_fecha"></label>
+    <label class="field">
+      <span class="lbl">Archivo (PDF o imagen, máx. 10 MB)</span>
+      <input type="file" id="adj_file" accept="application/pdf,image/*">
+      <span style="font-size:0.72rem;color:var(--gray-500);display:block;margin-top:0.2rem">Se sube de forma segura al expediente.</span>
+    </label>
+    <label class="field"><span class="lbl">— o link externo (Drive, Dropbox)</span><input type="url" id="adj_url" placeholder="https://drive.google.com/..."></label>
+    <label class="field"><span class="lbl">Observaciones</span><textarea id="adj_obs" rows="2"></textarea></label>
+    <div id="adj_progress" style="display:none;font-size:0.82rem;color:var(--gray-600);margin-top:0.6rem">
+      📤 Subiendo archivo… <span id="adj_progress_pct">0%</span>
+    </div>
+    <div style="display:flex;gap:0.6rem;margin-top:1rem;justify-content:flex-end">
+      <button type="button" class="btn btn-ghost" onclick="closeAdjuntoModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btnGuardarAdj">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, orderBy, serverTimestamp, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+  import { firebaseConfig, ROLES, ESTADOS_EXPEDIENTE, TIPOS_DOCUMENTO, STORAGE_PATHS, getNextFolio } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  let currentUser = null, userData = {}, expediente = null, expedienteId = null;
+
+  const urlParams = new URL(window.location.href).searchParams;
+  expedienteId = urlParams.get('id');
+
+  if (!expedienteId) {
+    document.getElementById('loading').textContent = 'Falta el ID del expediente en la URL.';
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userData = snap.exists() ? snap.data() : {};
+    if (![ROLES.SECRETARIA, ROLES.MEDICO, ROLES.ADMIN].includes(userData.rol)) {
+      window.location.href = 'portal.html'; return;
+    }
+    currentUser = user;
+    if (expedienteId) cargarExpediente();
+  });
+
+  async function cargarExpediente() {
+    try {
+      const ref = doc(db, 'expedientes', expedienteId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        document.getElementById('loading').textContent = 'Expediente no encontrado.';
+        return;
+      }
+      expediente = snap.data();
+      pintarExpediente();
+      await cargarAdjuntos();
+      await pintarLinkPDFCap();
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading').textContent = 'Error: ' + (err.message || err.code);
+    }
+  }
+
+  function pintarExpediente() {
+    const p = expediente.paciente_snapshot || {};
+    const nombreCompleto = ((p.nombres||'') + ' ' + (p.apellidos||'')).trim() || '(sin nombre)';
+
+    document.getElementById('title').textContent = nombreCompleto;
+    document.getElementById('subtitle').textContent =
+      'Visita: ' + (expediente.tipo_visita || '—') +
+      ' · Empresa: ' + (p.empresa_nombre || expediente.empresa_id);
+
+    const pill = document.getElementById('estadoPill');
+    pill.textContent = expediente.estado;
+    pill.className = 'estado-pill estado-' + expediente.estado;
+
+    // Info del paciente
+    const fmtFecha = (f) => {
+      if (!f) return '—';
+      if (f.toDate) return f.toDate().toLocaleDateString('es-CO');
+      return new Date(f).toLocaleDateString('es-CO');
+    };
+    const fotoHtml = p.foto_url
+      ? `<img src="${p.foto_url}" alt="Foto" style="width:74px;height:74px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--white);border:2px solid var(--green)">`
+      : `<div style="width:74px;height:74px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--gray-500);flex-shrink:0">👤</div>`;
+    document.getElementById('pacienteInfo').innerHTML = `
+      <div class="info-item" style="grid-column:1/-1;display:flex;gap:1rem;align-items:center;margin-bottom:0.5rem">
+        ${fotoHtml}
+        <div style="flex:1">
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-dark);font-weight:700">${escapeHtml(nombreCompleto)}</div>
+          <div style="font-size:0.8rem;color:var(--gray-600)">${(p.tipo_documento||'CC')} ${escapeHtml(p.numero_documento||'—')} · ${escapeHtml(p.cargo||'—')}</div>
+          ${expediente.paciente_id ? `<a href="pacientes.html" style="font-size:0.78rem;color:var(--blue);text-decoration:underline">Ver ficha del paciente →</a>` : ''}
+        </div>
+      </div>
+      <div class="info-item"><strong>Documento</strong>${p.tipo_documento||''} ${escapeHtml(p.numero_documento||'—')}</div>
+      <div class="info-item"><strong>Fecha nacimiento</strong>${fmtFecha(p.fecha_nacimiento)}</div>
+      <div class="info-item"><strong>Sexo</strong>${p.sexo||'—'}</div>
+      <div class="info-item"><strong>Cargo</strong>${escapeHtml(p.cargo||'—')}</div>
+      <div class="info-item"><strong>Teléfono</strong>${escapeHtml(p.telefono||'—')}</div>
+      <div class="info-item"><strong>ID expediente</strong><span style="font-family:ui-monospace,monospace;font-size:0.78rem">${escapeHtml(expedienteId)}</span></div>
+    `;
+
+    // Exámenes y documentos
+    const examenes = [
+      { key:'historia_clinica', label:'Historia Clínica', urlNew:'nueva-historia-clinica.html', collection:'historias_clinicas' },
+      { key:'audiometria',      label:'Audiometría',      urlNew:'audiometria.html',            collection:'audiometrias' },
+      { key:'visiometria',      label:'Visiometría',      urlNew:'visiometria.html',            collection:'visiometrias' },
+      { key:'optometria',       label:'Optometría',       urlNew:'optometria.html',             collection:'optometrias' },
+      { key:'concepto',         label:'Concepto de Aptitud', urlNew:'nuevo-concepto-aptitud.html', collection:'conceptos_aptitud' }
+    ];
+
+    const grid = document.getElementById('examenesGrid');
+    grid.innerHTML = '';
+    examenes.forEach(ex => {
+      const estado = (expediente.examenes_estado||{})[ex.key] || 'pendiente';
+      const folio  = (expediente.documentos||{})[ex.key] || null;
+      const card = document.createElement('div');
+      card.className = 'examen-card ' + estado;
+      const bloqueado = expediente.estado === 'cerrado';
+      card.innerHTML = `
+        <div class="examen-titulo">
+          <span>${ex.label}</span>
+          <span class="examen-estado ${estado==='completado'?'est-done':'est-pend'}">${estado==='completado'?'✓ Listo':'Pendiente'}</span>
+        </div>
+        ${folio ? `<div class="examen-folio">Folio: ${escapeHtml(folio)}</div>` : ''}
+        ${estado === 'completado'
+          ? `<span class="examen-action action-ver">✓ Completado</span>`
+          : (bloqueado
+              ? `<span class="examen-action" style="background:var(--gray-100);color:var(--gray-500)">Expediente cerrado</span>`
+              : `<a class="examen-action action-crear" href="${ex.urlNew}?expediente=${encodeURIComponent(expedienteId)}">+ Diligenciar</a>`)
+        }
+      `;
+      grid.appendChild(card);
+    });
+
+    // Acciones de workflow
+    pintarWorkflowActions();
+
+    // Log
+    const log = document.getElementById('logList');
+    if (Array.isArray(expediente.log_actividad) && expediente.log_actividad.length) {
+      log.innerHTML = expediente.log_actividad.slice().reverse().slice(0, 10).map(item => `
+        <div style="padding:0.5rem 0;border-bottom:1px dashed var(--gray-100)">
+          <strong style="color:var(--blue-dark)">${escapeHtml(item.accion || '')}</strong>
+          ${item.nota ? ' — ' + escapeHtml(item.nota) : ''}
+          <small style="display:block;color:var(--gray-500);font-size:0.75rem">${item.timestamp ? new Date(item.timestamp).toLocaleString('es-CO') : ''}</small>
+        </div>
+      `).join('');
+    } else {
+      log.innerHTML = '<div class="empty">Sin actividad registrada.</div>';
+    }
+  }
+
+  // Si el CAP del expediente tiene PDF, añadir botón de descarga en la card del concepto
+  async function pintarLinkPDFCap() {
+    const folio = (expediente.documentos || {}).concepto;
+    if (!folio) return;
+    try {
+      const cap = await getDoc(doc(db, 'conceptos_aptitud', folio));
+      if (!cap.exists()) return;
+      const pdfUrl = cap.data().pdf_url;
+      if (!pdfUrl) return;
+      // Encontrar la card del concepto y añadir botón
+      const cards = document.querySelectorAll('.examen-card');
+      cards.forEach(card => {
+        const titulo = card.querySelector('.examen-titulo span');
+        if (titulo && /Concepto/.test(titulo.textContent)) {
+          const a = document.createElement('a');
+          a.href = pdfUrl;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.className = 'examen-action';
+          a.style.cssText = 'background:var(--green-soft);color:var(--green-dark);border:1.5px solid var(--green);';
+          a.textContent = '📥 Descargar PDF';
+          card.appendChild(a);
+        }
+      });
+    } catch (err) { console.warn('No se pudo cargar pdf_url del CAP:', err); }
+  }
+
+  function pintarWorkflowActions() {
+    const acciones = document.getElementById('workflowActions');
+    acciones.innerHTML = '';
+    const esStaff = [ROLES.SECRETARIA, ROLES.MEDICO, ROLES.ADMIN].includes(userData.rol);
+    if (!esStaff) return;
+
+    const estado = expediente.estado;
+
+    if (estado === ESTADOS_EXPEDIENTE.RECEPCION) {
+      // Secretaria/admin pueden pasar a examenes
+      const b = document.createElement('button');
+      b.className = 'btn btn-primary';
+      b.textContent = '→ Pasar a Exámenes';
+      b.onclick = () => transicionEstado(ESTADOS_EXPEDIENTE.EXAMENES, 'Pasado a exámenes');
+      acciones.appendChild(b);
+    } else if (estado === ESTADOS_EXPEDIENTE.EXAMENES) {
+      // Médico/admin: pasar a revisión cuando exámenes están listos
+      if ([ROLES.MEDICO, ROLES.ADMIN].includes(userData.rol)) {
+        const b = document.createElement('button');
+        b.className = 'btn btn-warning';
+        b.textContent = '→ Marcar listo para revisión';
+        b.onclick = () => transicionEstado(ESTADOS_EXPEDIENTE.REVISION, 'Exámenes completos, listo para revisión');
+        acciones.appendChild(b);
+      }
+    } else if (estado === ESTADOS_EXPEDIENTE.REVISION) {
+      // Secretaria/admin: cerrar
+      if ([ROLES.SECRETARIA, ROLES.ADMIN].includes(userData.rol)) {
+        const b = document.createElement('button');
+        b.className = 'btn btn-success';
+        b.textContent = '🔒 Cerrar expediente';
+        b.onclick = () => {
+          if (!confirm('¿Cerrar el expediente? Esta acción bloquea ediciones futuras (solo médico/admin pueden reabrir).')) return;
+          transicionEstado(ESTADOS_EXPEDIENTE.CERRADO, 'Cierre de expediente', true);
+        };
+        acciones.appendChild(b);
+      }
+    } else if (estado === ESTADOS_EXPEDIENTE.CERRADO) {
+      // Médico/admin pueden reabrir
+      if ([ROLES.MEDICO, ROLES.ADMIN].includes(userData.rol)) {
+        const b = document.createElement('button');
+        b.className = 'btn btn-ghost';
+        b.textContent = '🔓 Reabrir expediente';
+        b.onclick = async () => {
+          const motivo = prompt('Motivo de reapertura (queda registrado):');
+          if (!motivo || !motivo.trim()) return;
+          transicionEstado(ESTADOS_EXPEDIENTE.EXAMENES, 'Reapertura: ' + motivo.trim(), false, true);
+        };
+        acciones.appendChild(b);
+      }
+    }
+  }
+
+  async function transicionEstado(nuevoEstado, nota, bloquear=false, desbloquear=false) {
+    try {
+      const ref = doc(db, 'expedientes', expedienteId);
+      const update = {
+        estado: nuevoEstado,
+        updatedAt: serverTimestamp(),
+        log_actividad: arrayUnion({
+          uid: currentUser.uid,
+          accion: 'cambio_estado_' + nuevoEstado,
+          timestamp: new Date().toISOString(),
+          nota
+        })
+      };
+      if (bloquear)   update.bloqueado = true;
+      if (desbloquear) update.bloqueado = false;
+      await updateDoc(ref, update);
+      showAlert('success', '✓ Estado actualizado.');
+      setTimeout(() => location.reload(), 800);
+    } catch (err) {
+      console.error(err);
+      showAlert('error', 'Error: ' + (err.message || err.code));
+    }
+  }
+
+  async function cargarAdjuntos() {
+    try {
+      const q = query(collection(db, 'adjuntos'), where('expediente_id', '==', expedienteId));
+      const snap = await getDocs(q);
+      const list = document.getElementById('adjuntosList');
+      if (snap.empty) {
+        list.innerHTML = '<div class="empty">Sin exámenes externos registrados.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      snap.forEach(d => {
+        const a = d.data();
+        const item = document.createElement('div');
+        item.className = 'adjunto-item';
+        const fechaStr = a.fecha_examen ?
+          (a.fecha_examen.toDate ? a.fecha_examen.toDate().toLocaleDateString('es-CO') : new Date(a.fecha_examen).toLocaleDateString('es-CO'))
+          : '—';
+        item.innerHTML = `
+          <div>
+            <strong>${escapeHtml(a.titulo || '(sin título)')}</strong>
+            <small>${escapeHtml(a.tipo||'')} · ${escapeHtml(a.proveedor_externo||'—')} · ${fechaStr}</small>
+            ${a.observaciones ? `<div style="font-size:0.78rem;color:var(--gray-600);margin-top:3px">${escapeHtml(a.observaciones)}</div>` : ''}
+          </div>
+          ${a.archivo_url ? `<a href="${escapeAttr(a.archivo_url)}" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:0.4rem 0.85rem;font-size:0.78rem">Abrir ↗</a>` : ''}
+        `;
+        list.appendChild(item);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Modal adjunto
+  window.openAdjuntoModal = function() {
+    if (expediente.estado === 'cerrado' && ![ROLES.MEDICO, ROLES.ADMIN].includes(userData.rol)) {
+      showAlert('error', 'El expediente está cerrado. Solo médico/admin pueden agregar adjuntos.');
+      return;
+    }
+    document.getElementById('adj_fecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById('adjuntoModal').classList.add('open');
+  };
+  window.closeAdjuntoModal = function() {
+    document.getElementById('adjuntoModal').classList.remove('open');
+  };
+
+  document.getElementById('btnGuardarAdj').addEventListener('click', async () => {
+    const titulo = document.getElementById('adj_titulo').value.trim();
+    if (!titulo) { alert('Falta el título.'); return; }
+
+    const fileInput = document.getElementById('adj_file');
+    const file = fileInput.files?.[0] || null;
+    const linkExterno = document.getElementById('adj_url').value.trim();
+    if (file && file.size > 10 * 1024 * 1024) {
+      alert('El archivo supera los 10 MB. Usa link externo (Drive/Dropbox) para archivos más grandes.');
+      return;
+    }
+
+    const btn = document.getElementById('btnGuardarAdj');
+    btn.disabled = true; btn.textContent = file ? 'Subiendo…' : 'Guardando…';
+
+    let folio;
+    try { folio = await getNextFolio(TIPOS_DOCUMENTO.ADJUNTO, db); }
+    catch (e) { alert('Error generando folio: ' + e.message); btn.disabled = false; btn.textContent = 'Guardar'; return; }
+
+    let archivo_url = linkExterno || null;
+    let archivo_nombre = null;
+    let archivo_tipo_mime = null;
+    let archivo_tamano_bytes = null;
+    let archivo_storage_path = null;
+
+    // Si hay archivo, subir a Storage
+    if (file) {
+      try {
+        const safeName = file.name.replace(/[^\w.\-]/g, '_').slice(0, 80);
+        archivo_nombre = file.name;
+        archivo_tipo_mime = file.type;
+        archivo_tamano_bytes = file.size;
+        archivo_storage_path = STORAGE_PATHS.adjunto(folio, safeName);
+        const storage = getStorage();
+        const sref = ref(storage, archivo_storage_path);
+        const task = uploadBytesResumable(sref, file, { contentType: file.type });
+        document.getElementById('adj_progress').style.display = '';
+        await new Promise((resolve, reject) => {
+          task.on('state_changed',
+            (s) => {
+              const pct = Math.round((s.bytesTransferred / s.totalBytes) * 100);
+              document.getElementById('adj_progress_pct').textContent = pct + '%';
+            },
+            (err) => reject(err),
+            () => resolve()
+          );
+        });
+        archivo_url = await getDownloadURL(sref);
+      } catch (uploadErr) {
+        console.error(uploadErr);
+        alert('Error al subir archivo: ' + (uploadErr.message || uploadErr.code) +
+              '\n\nRevisa que las reglas de Storage estén publicadas en Firebase Console.');
+        btn.disabled = false; btn.textContent = 'Guardar';
+        document.getElementById('adj_progress').style.display = 'none';
+        return;
+      }
+    }
+
+    const data = {
+      folio, expediente_id: expedienteId, tipo_documento:'ADJ',
+      tipo: document.getElementById('adj_tipo').value,
+      titulo,
+      proveedor_externo: document.getElementById('adj_proveedor').value.trim(),
+      fecha_examen: document.getElementById('adj_fecha').value ? new Date(document.getElementById('adj_fecha').value) : null,
+      archivo_url,
+      archivo_nombre,
+      archivo_tipo_mime,
+      archivo_tamano_bytes,
+      archivo_storage_path,
+      observaciones: document.getElementById('adj_obs').value.trim(),
+      subido_por: currentUser.uid,
+      subido_por_nombre: ((userData.nombres||'')+' '+(userData.apellidos||'')).trim(),
+      createdAt: serverTimestamp()
+    };
+
+    try {
+      await setDoc(doc(db, 'adjuntos', folio), data);
+      await updateDoc(doc(db, 'expedientes', expedienteId), {
+        log_actividad: arrayUnion({
+          uid: currentUser.uid,
+          accion: 'adjunto_agregado',
+          timestamp: new Date().toISOString(),
+          nota: 'Adjunto: ' + titulo + (file ? ' (archivo subido)' : (linkExterno ? ' (link externo)' : ''))
+        }),
+        updatedAt: serverTimestamp()
+      });
+      closeAdjuntoModal();
+      ['adj_titulo','adj_proveedor','adj_url','adj_obs'].forEach(id => document.getElementById(id).value = '');
+      fileInput.value = '';
+      document.getElementById('adj_progress').style.display = 'none';
+      showAlert('success', '✓ Adjunto registrado con folio ' + folio);
+      cargarAdjuntos();
+    } catch (err) {
+      console.error(err);
+      alert('Error: ' + (err.message || err.code));
+    } finally {
+      btn.disabled = false; btn.textContent = 'Guardar';
+    }
+  });
+
+  function showAlert(type, msg) {
+    const a = document.getElementById('alert');
+    a.className = 'alert show alert-' + type; a.textContent = msg;
+    a.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[ch]));
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+</script>
+</body>
+</html>

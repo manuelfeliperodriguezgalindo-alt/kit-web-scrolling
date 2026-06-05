@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Usuarios · Reina María IPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#1E6FB3;--blue-dark:#0E3D6E;--blue-xlight:#EAF3FB;--green:#4FB3A2;--green-dark:#2F8D7B;--green-soft:#E6F4F1;--yellow:#FFD600;--yellow-soft:#FFF8E1;--yellow-dark:#F9A825;--white:#FFFFFF;--gray-50:#F7FAFC;--gray-100:#EEF3F7;--gray-300:#CBD5E0;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--text:#1A2233;--error:#DC2626;--shadow:0 4px 18px rgba(14,61,110,0.08);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--gray-50);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:0.85rem 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+  header img{height:38px;width:auto;max-width:150px;object-fit:contain;background:white;padding:4px 8px;border-radius:8px;}
+  header .back{color:rgba(255,255,255,0.85);font-size:0.85rem;font-weight:500;}
+  header .back:hover{color:var(--yellow);}
+  main{max-width:1100px;margin:0 auto;padding:1.5rem 5% 4rem;}
+  h1.title{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,1.9rem);color:var(--blue-dark);margin-bottom:0.3rem;}
+  .subtitle{color:var(--gray-600);font-size:0.92rem;margin-bottom:1.5rem;}
+
+  .card{background:var(--white);border-radius:16px;padding:1.4rem;box-shadow:var(--shadow);margin-bottom:1rem;border:1px solid var(--gray-100);}
+  .card h2{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-dark);margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+  .card h2::before{content:'';width:5px;height:22px;background:var(--green);border-radius:3px;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.75rem;margin-bottom:1.2rem;}
+  .stat{background:var(--white);border:1px solid var(--gray-100);border-radius:12px;padding:0.85rem 1rem;}
+  .stat.pendiente{border-left:4px solid var(--yellow-dark);}
+  .stat.medico{border-left:4px solid var(--blue);}
+  .stat.secretaria{border-left:4px solid var(--green);}
+  .stat.empresa{border-left:4px solid var(--green-dark);}
+  .stat.admin{border-left:4px solid #831843;}
+  .stat-num{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--blue-dark);line-height:1;}
+  .stat-lbl{font-size:0.74rem;color:var(--gray-600);text-transform:uppercase;letter-spacing:1px;margin-top:0.3rem;font-weight:600;}
+
+  .filtros{display:flex;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
+  .filtros input,.filtros select{padding:0.55rem 0.75rem;border:1.5px solid var(--gray-100);border-radius:8px;font-family:inherit;font-size:0.85rem;outline:none;background:var(--white);color:var(--text);}
+  .filtros input{flex:1;min-width:200px;}
+  .filtros input:focus,.filtros select:focus{border-color:var(--green);}
+
+  table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+  th,td{padding:0.7rem 0.85rem;text-align:left;border-bottom:1px solid var(--gray-100);}
+  th{background:var(--gray-50);color:var(--blue-dark);font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;}
+  tr:hover{background:var(--gray-50);}
+  .pill-rol{display:inline-block;padding:2px 10px;border-radius:50px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+  .pill-pendiente {background:var(--yellow-soft);color:var(--yellow-dark);}
+  .pill-secretaria{background:var(--green-soft);color:var(--green-dark);}
+  .pill-medico    {background:var(--blue-xlight);color:var(--blue-dark);}
+  .pill-empresa   {background:#E0F2FE;color:#075985;}
+  .pill-admin     {background:#FCE7F3;color:#831843;}
+
+  .btn{border:none;cursor:pointer;padding:0.45rem 0.85rem;border-radius:7px;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s;}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-ghost{background:transparent;color:var(--gray-600);border:1.5px solid var(--gray-100);}
+  .btn-ghost:hover{background:var(--gray-50);}
+  .btn-danger{background:transparent;color:var(--error);border:1.5px solid #FECACA;}
+  .btn-danger:hover{background:#FEF2F2;}
+  .actions{display:flex;gap:0.4rem;flex-wrap:wrap;}
+
+  .empty{text-align:center;padding:2.5rem 1rem;color:var(--gray-500);font-size:0.88rem;}
+  .alert{padding:0.85rem 1rem;border-radius:10px;font-size:0.88rem;margin-bottom:1rem;display:none;}
+  .alert.show{display:block;}
+  .alert-success{background:var(--green-soft);color:var(--green-dark);border:1px solid #BBF7D0;}
+  .alert-error{background:#FEF2F2;color:var(--error);border:1px solid #FECACA;}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:white;border-radius:18px;padding:1.5rem;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;}
+  .modal h3{font-family:'Playfair Display',serif;color:var(--blue-dark);margin-bottom:0.4rem;}
+  .modal p{font-size:0.85rem;color:var(--gray-600);margin-bottom:1rem;}
+  .modal label{display:block;margin-bottom:0.7rem;}
+  .modal .lbl{font-size:0.74rem;font-weight:600;color:var(--blue-dark);margin-bottom:0.25rem;display:block;}
+  .modal input,.modal select{width:100%;padding:0.55rem 0.75rem;border:1.5px solid var(--gray-100);border-radius:8px;font-family:inherit;font-size:0.88rem;outline:none;}
+  .modal input:focus,.modal select:focus{border-color:var(--green);}
+  .modal-actions{display:flex;gap:0.5rem;margin-top:1.2rem;justify-content:flex-end;flex-wrap:wrap;}
+  .modal-actions .btn{padding:0.7rem 1.2rem;font-size:0.88rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1 class="title">Gestión de usuarios</h1>
+  <p class="subtitle">Aprueba registros pendientes y administra los roles del equipo.</p>
+
+  <div id="alert" class="alert"></div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="stats"></div>
+
+  <!-- Filtros -->
+  <section class="card">
+    <div class="filtros">
+      <input type="text" id="filterText" placeholder="Buscar por nombre o correo...">
+      <select id="filterRol">
+        <option value="">Todos los roles</option>
+        <option value="pendiente">⏳ Pendientes</option>
+        <option value="secretaria">Secretaria</option>
+        <option value="medico">Médico</option>
+        <option value="empresa">Empresa</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div id="lista" class="empty">Cargando...</div>
+  </section>
+</main>
+
+<!-- Modal aprobar/cambiar rol -->
+<div class="modal-overlay" id="modalRol">
+  <div class="modal">
+    <h3 id="modalTitle">Asignar rol</h3>
+    <p id="modalUser">—</p>
+    <label><span class="lbl">Nuevo rol</span>
+      <select id="modalRolSelect">
+        <option value="secretaria">Secretaria</option>
+        <option value="medico">Médico</option>
+        <option value="empresa">Empresa</option>
+        <option value="admin">Administrador</option>
+      </select>
+    </label>
+    <label id="modalEmpresaWrap" style="display:none">
+      <span class="lbl">ID de la empresa que administra</span>
+      <input type="text" id="modalEmpresaId" placeholder="ID del doc en /empresas/">
+    </label>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnGuardarRol">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  let currentUser = null, userData = {}, allUsers = [];
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userData = snap.exists() ? snap.data() : {};
+    if (userData.rol !== ROLES.ADMIN) {
+      showAlert('error', 'Solo el administrador puede gestionar usuarios.');
+      setTimeout(() => window.location.href = 'dashboard-empleado.html', 1500);
+      return;
+    }
+    currentUser = user;
+    cargarUsuarios();
+  });
+
+  document.getElementById('modalRolSelect').addEventListener('change', e => {
+    document.getElementById('modalEmpresaWrap').style.display = e.target.value === 'empresa' ? 'block' : 'none';
+  });
+  document.getElementById('filterText').addEventListener('input', renderFiltrados);
+  document.getElementById('filterRol').addEventListener('change', renderFiltrados);
+
+  async function cargarUsuarios() {
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderStats();
+      renderFiltrados();
+    } catch (err) {
+      console.error(err);
+      document.getElementById('lista').innerHTML = '<div class="empty">Error: ' + err.message + '</div>';
+    }
+  }
+
+  function renderStats() {
+    const counts = { pendiente:0, secretaria:0, medico:0, empresa:0, admin:0 };
+    allUsers.forEach(u => { if (counts[u.rol] !== undefined) counts[u.rol]++; });
+    const cont = document.getElementById('stats');
+    cont.innerHTML = `
+      <div class="stat pendiente"><div class="stat-num">${counts.pendiente}</div><div class="stat-lbl">⏳ Pendientes</div></div>
+      <div class="stat medico"><div class="stat-num">${counts.medico}</div><div class="stat-lbl">Médicos</div></div>
+      <div class="stat secretaria"><div class="stat-num">${counts.secretaria}</div><div class="stat-lbl">Secretarias</div></div>
+      <div class="stat empresa"><div class="stat-num">${counts.empresa}</div><div class="stat-lbl">Empresas</div></div>
+      <div class="stat admin"><div class="stat-num">${counts.admin}</div><div class="stat-lbl">Admins</div></div>
+    `;
+  }
+
+  function renderFiltrados() {
+    const text = document.getElementById('filterText').value.toLowerCase().trim();
+    const rolFiltro = document.getElementById('filterRol').value;
+    const list = allUsers.filter(u => {
+      if (rolFiltro && u.rol !== rolFiltro) return false;
+      if (text) {
+        const hay = ((u.nombres||'')+' '+(u.apellidos||'')+' '+(u.email||'')).toLowerCase();
+        if (!hay.includes(text)) return false;
+      }
+      return true;
+    });
+    // Ordenar: pendientes primero, luego por fecha de creación desc
+    list.sort((a, b) => {
+      if (a.rol === 'pendiente' && b.rol !== 'pendiente') return -1;
+      if (b.rol === 'pendiente' && a.rol !== 'pendiente') return 1;
+      return 0;
+    });
+    renderLista(list);
+  }
+
+  function renderLista(list) {
+    const cont = document.getElementById('lista');
+    if (!list.length) {
+      cont.className = 'empty';
+      cont.innerHTML = '<div style="font-size:2.5rem;margin-bottom:0.4rem">👥</div>Sin usuarios.';
+      return;
+    }
+    cont.className = '';
+    let rows = '';
+    list.forEach(u => {
+      const nombre = ((u.nombres||'')+' '+(u.apellidos||'')).trim() || '(sin nombre)';
+      rows += `
+        <tr>
+          <td>
+            <strong>${escapeHtml(nombre)}</strong><br>
+            <small style="color:var(--gray-500);font-size:0.78rem">${escapeHtml(u.email||'')}</small>
+          </td>
+          <td>${escapeHtml(u.tipo_documento||'')} ${escapeHtml(u.numero_documento||'—')}</td>
+          <td><span class="pill-rol pill-${u.rol||'pendiente'}">${u.rol||'pendiente'}</span></td>
+          <td>${u.empresa_admin_de ? escapeHtml(u.empresa_admin_de) : '—'}</td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-primary" data-action="rol" data-uid="${escapeAttr(u.id)}" data-nombre="${escapeAttr(nombre)}" data-rolactual="${escapeAttr(u.rol||'pendiente')}">
+                ${u.rol === 'pendiente' ? '✓ Aprobar' : 'Cambiar rol'}
+              </button>
+              <button class="btn btn-danger" data-action="rechazar" data-uid="${escapeAttr(u.id)}" data-nombre="${escapeAttr(nombre)}">
+                ${u.rol === 'pendiente' ? 'Rechazar' : 'Eliminar'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    cont.innerHTML = `<table>
+      <thead><tr><th>Usuario</th><th>Documento</th><th>Rol</th><th>Empresa</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+    cont.querySelectorAll('[data-action="rol"]').forEach(btn => {
+      btn.addEventListener('click', () => abrirModal(btn.dataset.uid, btn.dataset.nombre, btn.dataset.rolactual));
+    });
+    cont.querySelectorAll('[data-action="rechazar"]').forEach(btn => {
+      btn.addEventListener('click', () => rechazarUsuario(btn.dataset.uid, btn.dataset.nombre));
+    });
+  }
+
+  // Modal
+  let modalUid = null;
+  function abrirModal(uid, nombre, rolActual) {
+    modalUid = uid;
+    document.getElementById('modalTitle').textContent = rolActual === 'pendiente' ? 'Aprobar usuario' : 'Cambiar rol';
+    document.getElementById('modalUser').textContent = nombre;
+    document.getElementById('modalRolSelect').value = rolActual === 'pendiente' ? 'medico' : rolActual;
+    document.getElementById('modalEmpresaWrap').style.display = (document.getElementById('modalRolSelect').value === 'empresa') ? 'block' : 'none';
+    document.getElementById('modalEmpresaId').value = '';
+    document.getElementById('modalRol').classList.add('open');
+  }
+  window.cerrarModal = function() {
+    modalUid = null;
+    document.getElementById('modalRol').classList.remove('open');
+  };
+
+  document.getElementById('btnGuardarRol').addEventListener('click', async () => {
+    if (!modalUid) return;
+    const nuevoRol = document.getElementById('modalRolSelect').value;
+    const empresaId = document.getElementById('modalEmpresaId').value.trim();
+    if (nuevoRol === 'empresa' && !empresaId) {
+      alert('Para rol "empresa" debes indicar el ID de la empresa.'); return;
+    }
+    const btn = document.getElementById('btnGuardarRol');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      const update = { rol: nuevoRol, updatedAt: serverTimestamp() };
+      if (nuevoRol === 'empresa') update.empresa_admin_de = empresaId;
+      await updateDoc(doc(db, 'users', modalUid), update);
+      cerrarModal();
+      showAlert('success', '✓ Rol actualizado.');
+      cargarUsuarios();
+    } catch (err) {
+      alert('Error: ' + (err.message || err.code));
+    } finally {
+      btn.disabled = false; btn.textContent = 'Guardar';
+    }
+  });
+
+  async function rechazarUsuario(uid, nombre) {
+    if (!confirm(`¿Eliminar el doc de usuario de "${nombre}"?\nLa cuenta de Auth quedará pero no podrá iniciar sesión sin doc.`)) return;
+    try {
+      await deleteDoc(doc(db, 'users', uid));
+      showAlert('success', '✓ Usuario eliminado.');
+      cargarUsuarios();
+    } catch (err) {
+      alert('Error: ' + (err.message || err.code));
+    }
+  }
+
+  function showAlert(type, msg) {
+    const a = document.getElementById('alert');
+    a.className = 'alert show alert-' + type; a.textContent = msg;
+    setTimeout(() => a.classList.remove('show'), 4000);
+  }
+  function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[ch])); }
+  function escapeAttr(s) { return escapeHtml(s); }
+</script>
+</body>
+</html>

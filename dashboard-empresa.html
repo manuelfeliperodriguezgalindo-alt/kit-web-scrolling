@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<link rel="apple-touch-icon" href="assets/logo-cuadrado.png">
+<title>Panel Empresa – Reina María IPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1E6FB3; --blue-dark: #0E3D6E; --blue-xlight: #EAF3FB;
+    --green: #4FB3A2; --green-dark: #2F8D7B; --green-soft: #E6F4F1;
+    --yellow: #FFD600; --yellow-soft: #FFF8E1;
+    --white: #FFFFFF; --gray-50: #F7FAFC; --gray-100: #EEF3F7;
+    --gray-300: #CBD5E0; --gray-500: #6B7280; --gray-600: #4B5563; --gray-700: #374151;
+    --text: #1A2233; --shadow: 0 4px 18px rgba(14,61,110,0.08);
+    --shadow-md: 0 8px 28px rgba(14,61,110,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text); background: var(--gray-50);
+    -webkit-font-smoothing: antialiased; line-height: 1.5;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    padding: 0.85rem 5%;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-wrap img {
+    height: 40px; width: auto; max-width: 160px; object-fit: contain;
+    background: white; padding: 4px 8px; border-radius: 8px;
+  }
+  .logo-text { color: white; font-family: 'Playfair Display', serif; font-size: 1rem; line-height: 1.15; }
+  .logo-sub { font-size: 0.6rem; letter-spacing: 1.5px; color: var(--yellow); text-transform: uppercase; font-weight: 700; }
+
+  .header-right { display: flex; align-items: center; gap: 0.8rem; }
+  .user-pill {
+    background: rgba(255,255,255,0.15); color: white;
+    padding: 0.4rem 0.85rem; border-radius: 50px; font-size: 0.82rem; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .user-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); }
+  .btn-logout {
+    background: transparent; color: rgba(255,255,255,0.8);
+    border: 1.5px solid rgba(255,255,255,0.3); padding: 0.45rem 0.9rem;
+    border-radius: 50px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: all 0.2s;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,0.1); border-color: white; color: white; }
+
+  /* ── MAIN ── */
+  main { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem); color: var(--blue-dark);
+    margin-bottom: 0.25rem; letter-spacing: -0.3px;
+  }
+  .page-subtitle { color: var(--gray-600); font-size: 0.92rem; margin-bottom: 2rem; }
+
+  /* ── EMPRESA INFO CARD ── */
+  .empresa-card {
+    background: var(--white); border-radius: 18px; padding: 1.5rem;
+    box-shadow: var(--shadow); border: 1px solid var(--gray-100);
+    margin-bottom: 1.8rem; display: grid; gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+  .empresa-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--blue-dark); }
+  .empresa-meta { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; color: var(--gray-600); font-size: 0.85rem; }
+  .empresa-meta strong { color: var(--blue-dark); display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem; }
+
+  /* ── STATS ── */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.85rem; margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: var(--white); border-radius: 14px; padding: 1.1rem;
+    border: 1px solid var(--gray-100); border-left: 4px solid var(--green);
+  }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--blue-dark); line-height: 1; }
+  .stat-lbl { font-size: 0.78rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: 1px; margin-top: 0.4rem; font-weight: 600; }
+
+  /* ── FILTERS ── */
+  .filters {
+    background: var(--white); border-radius: 14px; padding: 1rem;
+    margin-bottom: 1rem; border: 1px solid var(--gray-100);
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+  }
+  .filters input, .filters select {
+    padding: 0.6rem 0.85rem; border: 1.5px solid var(--gray-100);
+    border-radius: 8px; font-family: inherit; font-size: 0.88rem;
+    outline: none; background: var(--white); color: var(--text); flex: 1; min-width: 180px;
+  }
+  .filters input:focus, .filters select:focus { border-color: var(--green); }
+
+  /* ── LISTA CONCEPTOS ── */
+  .conceptos-list { display: grid; gap: 0.85rem; }
+  .concepto-card {
+    background: var(--white); border-radius: 14px; padding: 1.2rem;
+    border: 1px solid var(--gray-100); box-shadow: var(--shadow);
+    display: grid; gap: 0.6rem;
+  }
+  .concepto-head {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .concepto-name { font-weight: 700; color: var(--blue-dark); font-size: 1rem; }
+  .concepto-folio { font-family: ui-monospace, monospace; font-size: 0.78rem; color: var(--gray-500); background: var(--gray-50); padding: 2px 8px; border-radius: 6px; }
+  .concepto-meta { display: flex; gap: 1rem 1.4rem; flex-wrap: wrap; font-size: 0.84rem; color: var(--gray-600); }
+  .concepto-meta strong { color: var(--blue-dark); }
+  .concepto-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 50px;
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tag-apto       { background: var(--green-soft); color: var(--green-dark); }
+  .tag-restricc   { background: var(--yellow-soft); color: #B45309; }
+  .tag-noapto     { background: #FEF2F2; color: #B91C1C; }
+  .tag-pendiente  { background: var(--blue-xlight); color: var(--blue-dark); }
+
+  .empty-state {
+    text-align: center; padding: 3rem 1rem; color: var(--gray-500);
+    background: var(--white); border-radius: 14px; border: 1px dashed var(--gray-300);
+  }
+  .empty-state .ico { font-size: 3rem; margin-bottom: 0.5rem; }
+
+  .loading {
+    text-align: center; padding: 3rem; color: var(--gray-500);
+    font-size: 0.9rem;
+  }
+  .loading::after {
+    content: ''; display: inline-block; width: 16px; height: 16px;
+    border: 2px solid var(--gray-300); border-top-color: var(--blue);
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 8px;
+    vertical-align: -3px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer {
+    background: var(--blue-dark); color: rgba(255,255,255,0.6);
+    padding: 1rem 5%; text-align: center; font-size: 0.78rem; margin-top: 3rem;
+  }
+  footer a { color: var(--yellow); text-decoration: none; }
+
+  @media (min-width: 700px) {
+    .empresa-card { grid-template-columns: 1fr auto; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo-wrap" href="#">
+    <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  </a>
+  <div class="header-right">
+    <div class="user-pill"><span class="dot"></span><span id="userName">Cargando...</span></div>
+    <button class="btn-logout" onclick="handleLogout()">Salir</button>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-title">Panel de Empresa</h1>
+  <p class="page-subtitle">Conceptos de aptitud laboral de tus trabajadores.</p>
+
+  <div class="empresa-card" id="empresaCard">
+    <div>
+      <div class="empresa-name" id="empresaName">—</div>
+      <div class="empresa-meta">
+        <div><strong>NIT</strong><span id="empresaNit">—</span></div>
+        <div><strong>Actividad</strong><span id="empresaActividad">—</span></div>
+        <div><strong>Ciudad</strong><span id="empresaCiudad">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Conceptos</div></div>
+    <div class="stat-card" style="border-left-color: var(--green-dark)"><div class="stat-num" id="statAptos">0</div><div class="stat-lbl">Aptos</div></div>
+    <div class="stat-card" style="border-left-color: #B45309"><div class="stat-num" id="statRestric">0</div><div class="stat-lbl">Con restricciones</div></div>
+    <div class="stat-card" style="border-left-color: #B91C1C"><div class="stat-num" id="statNoAptos">0</div><div class="stat-lbl">No aptos</div></div>
+  </div>
+
+  <div class="filters">
+    <input type="text" id="filterText" placeholder="Buscar por nombre, cédula o cargo...">
+    <select id="filterTipo">
+      <option value="">Todos los tipos</option>
+      <option value="ingreso">Ingreso</option>
+      <option value="periodico">Periódico</option>
+      <option value="egreso">Egreso</option>
+      <option value="trabajo_alturas">Trabajo en alturas</option>
+      <option value="espacios_confinados">Espacios confinados</option>
+    </select>
+  </div>
+
+  <div id="conceptosContainer" class="loading">Cargando conceptos</div>
+</main>
+
+<footer>
+  © 2026 Reina María IPS · Cumplimos la <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=44214" target="_blank" rel="noopener">Ley 1581 de 2012</a> de protección de datos.
+</footer>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, collection, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES } from './js/firebase-config.js';
+  import { getUserData } from './js/auth-helper.js';
+  import { showEmailGate } from './js/email-gate.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let allConceptos = [];
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+
+    const { data: userData } = await getUserData(db, user.uid);
+
+    // Si rol pendiente → pantalla de espera
+    if (!userData.rol || userData.rol === ROLES.PENDIENTE) {
+      window.location.href = 'cuenta-pendiente.html';
+      return;
+    }
+    if (userData.rol !== ROLES.EMPRESA) {
+      // Empresas solamente. El resto va a su dashboard correspondiente.
+      const { rolToDashboard } = await import('./js/firebase-config.js');
+      window.location.href = rolToDashboard(userData.rol);
+      return;
+    }
+
+    const empresaId = userData.empresa_admin_de;
+    document.getElementById('userName').textContent =
+      ((userData.nombres || '') + ' ' + (userData.apellidos || '')).trim() || user.email;
+
+    if (!empresaId) {
+      document.getElementById('conceptosContainer').className = 'empty-state';
+      document.getElementById('conceptosContainer').innerHTML =
+        '<div class="ico">⚠️</div><strong>Tu cuenta no tiene empresa asignada.</strong><br>Contacta al administrador para que asigne tu <code>empresa_admin_de</code>.';
+      return;
+    }
+
+    // Cargar info de la empresa
+    try {
+      const empSnap = await getDoc(doc(db, 'empresas', empresaId));
+      if (empSnap.exists()) {
+        const e = empSnap.data();
+        document.getElementById('empresaName').textContent      = e.razon_social || empresaId;
+        document.getElementById('empresaNit').textContent       = e.nit || '—';
+        document.getElementById('empresaActividad').textContent = e.actividad_economica || '—';
+        document.getElementById('empresaCiudad').textContent    = (e.ciudad || '—') + (e.departamento ? ', ' + e.departamento : '');
+      }
+    } catch (e) { /* silencioso */ }
+
+    // Cargar conceptos de aptitud de esta empresa
+    try {
+      const q = query(
+        collection(db, 'conceptos_aptitud'),
+        where('empresa_id', '==', empresaId),
+        orderBy('fecha', 'desc')
+      );
+      const snap = await getDocs(q);
+      allConceptos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render(allConceptos);
+    } catch (err) {
+      console.error(err);
+      document.getElementById('conceptosContainer').className = 'empty-state';
+      document.getElementById('conceptosContainer').innerHTML =
+        '<div class="ico">⚠️</div><strong>No pudimos cargar los conceptos.</strong><br>Verifica que las reglas de Firestore estén publicadas.';
+    }
+  });
+
+  // ── Render ──
+  function render(list) {
+    const cont = document.getElementById('conceptosContainer');
+    cont.className = '';
+    cont.innerHTML = '';
+
+    // Stats
+    const total   = list.length;
+    const aptos   = list.filter(c => c.concepto_valoracion?.apto_desempenar_cargo
+                                    && !c.concepto_valoracion?.apto_con_recomendaciones
+                                    && !c.contraindicaciones_retiro?.hay).length;
+    const restric = list.filter(c => c.concepto_valoracion?.apto_con_recomendaciones).length;
+    const noAptos = list.filter(c => c.concepto_valoracion?.aplazado || c.contraindicaciones_retiro?.hay).length;
+    document.getElementById('statTotal').textContent    = total;
+    document.getElementById('statAptos').textContent    = aptos;
+    document.getElementById('statRestric').textContent  = restric;
+    document.getElementById('statNoAptos').textContent  = noAptos;
+
+    if (!total) {
+      cont.className = 'empty-state';
+      cont.innerHTML = '<div class="ico">📋</div><strong>No hay conceptos registrados aún.</strong><br><span style="font-size:0.85rem">Cuando el médico genere conceptos para tus trabajadores aparecerán aquí.</span>';
+      return;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'conceptos-list';
+    list.forEach(c => wrap.appendChild(buildCard(c)));
+    cont.appendChild(wrap);
+  }
+
+  function buildCard(c) {
+    const t   = c.trabajador_snapshot || {};
+    const cv  = c.concepto_valoracion || {};
+    const tipos = Object.entries(c.tipo_examen || {})
+      .filter(([k, v]) => v === true && k !== 'otro')
+      .map(([k]) => k.replace(/_/g, ' '))
+      .join(', ') || '—';
+    const fecha = c.fecha?.toDate ? c.fecha.toDate() : (c.fecha ? new Date(c.fecha) : null);
+    const fechaStr = fecha ? fecha.toLocaleDateString('es-CO', { year:'numeric', month:'short', day:'numeric' }) : '—';
+
+    let tag, tagText;
+    if (cv.aplazado || c.contraindicaciones_retiro?.hay) { tag = 'tag-noapto'; tagText = 'No apto'; }
+    else if (cv.apto_con_recomendaciones)                { tag = 'tag-restricc'; tagText = 'Con recomendaciones'; }
+    else if (cv.apto_desempenar_cargo)                   { tag = 'tag-apto'; tagText = 'Apto'; }
+    else                                                  { tag = 'tag-pendiente'; tagText = 'Pendiente'; }
+
+    const div = document.createElement('div');
+    div.className = 'concepto-card';
+    div.innerHTML = `
+      <div class="concepto-head">
+        <div class="concepto-name">${escapeHtml((t.nombres || '') + ' ' + (t.apellidos || '') || '—')}</div>
+        <span class="concepto-tag ${tag}">${tagText}</span>
+      </div>
+      <div class="concepto-meta">
+        <div><strong>Cédula:</strong> ${escapeHtml(t.numero_documento || '—')}</div>
+        <div><strong>Cargo:</strong> ${escapeHtml(t.cargo || '—')}</div>
+        <div><strong>Fecha:</strong> ${fechaStr}</div>
+        <div><strong>Tipo:</strong> ${escapeHtml(tipos)}</div>
+      </div>
+      <div class="concepto-folio">Folio: ${escapeHtml(c.id)}</div>
+    `;
+    return div;
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[ch]));
+  }
+
+  // ── Filtros ──
+  document.getElementById('filterText').addEventListener('input', applyFilters);
+  document.getElementById('filterTipo').addEventListener('change', applyFilters);
+
+  function applyFilters() {
+    const text = document.getElementById('filterText').value.toLowerCase().trim();
+    const tipo = document.getElementById('filterTipo').value;
+    const filtered = allConceptos.filter(c => {
+      if (tipo && !c.tipo_examen?.[tipo]) return false;
+      if (text) {
+        const t = c.trabajador_snapshot || {};
+        const hay = ((t.nombres || '') + ' ' + (t.apellidos || '') + ' ' + (t.numero_documento || '') + ' ' + (t.cargo || '')).toLowerCase();
+        if (!hay.includes(text)) return false;
+      }
+      return true;
+    });
+    render(filtered);
+  }
+
+  // ── Logout ──
+  window.handleLogout = async function() {
+    try { localStorage.removeItem('rmips_user_cache_v1'); } catch (_) {}
+    try { await signOut(auth); } catch (_) {}
+    window.location.href = 'portal.html';
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Nueva Audiometría · Reina María IPS</title>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="prefetch" href="expediente.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1E6FB3; --blue-dark: #0E3D6E; --blue-xlight: #EAF3FB;
+    --green: #4FB3A2; --green-dark: #2F8D7B; --green-soft: #E6F4F1;
+    --yellow: #FFD600; --yellow-soft: #FFF8E1; --yellow-dark: #F9A825;
+    --white: #FFFFFF; --gray-50: #F7FAFC; --gray-100: #EEF3F7;
+    --gray-300: #CBD5E0; --gray-500: #6B7280; --gray-600: #4B5563; --gray-700: #374151;
+    --text: #1A2233; --error: #DC2626;
+    --shadow: 0 4px 18px rgba(14,61,110,0.08);
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',system-ui,sans-serif; color:var(--text); background:var(--gray-50); -webkit-font-smoothing:antialiased; line-height:1.5; }
+  a { color: inherit; }
+
+  header {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    padding: 0.85rem 5%; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); gap: 0.8rem;
+  }
+  header img { height: 38px; width: auto; max-width: 150px; object-fit: contain; background: white; padding: 4px 8px; border-radius: 8px; }
+  header .back { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
+  header .back:hover { color: var(--yellow); }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 1.5rem 5% 6rem; }
+  h1.title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--blue-dark); margin-bottom: 0.3rem; }
+  .subtitle { color: var(--gray-600); font-size: 0.92rem; margin-bottom: 1.5rem; }
+  .codigo-formato {
+    display: inline-block; background: var(--yellow-soft); color: var(--yellow-dark);
+    padding: 3px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-left: 0.5rem;
+  }
+  .folio-pill {
+    display: inline-block; background: var(--blue-xlight); color: var(--blue-dark);
+    padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 700;
+    font-family: ui-monospace, monospace; margin-bottom: 1rem;
+  }
+
+  .section {
+    background: var(--white); border-radius: 16px; padding: 1.4rem;
+    box-shadow: var(--shadow); margin-bottom: 1rem; border: 1px solid var(--gray-100);
+  }
+  .section h2 {
+    font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--blue-dark);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .section h2::before { content:''; width:5px; height:22px; background:var(--green); border-radius:3px; }
+  .section h3 { font-size: 0.78rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: 1.2px; margin: 1.1rem 0 0.55rem; font-weight: 700; }
+
+  .grid { display: grid; gap: 0.75rem; grid-template-columns: 1fr; }
+  @media (min-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  label.field { display: block; }
+  label.field .lbl { display: block; font-size: 0.74rem; font-weight: 600; color: var(--blue-dark); margin-bottom: 0.25rem; }
+  label.field input, label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.75rem; border: 1.5px solid var(--gray-100);
+    border-radius: 8px; font-family: inherit; font-size: 0.88rem; outline: none;
+    background: var(--white); color: var(--text); transition: border 0.15s;
+  }
+  label.field input:focus, label.field select:focus, label.field textarea:focus { border-color: var(--green); }
+  label.field textarea { resize: vertical; min-height: 60px; }
+
+  .check-grid { display: grid; gap: 0.45rem; grid-template-columns: 1fr 1fr; }
+  @media (min-width: 600px) { .check-grid { grid-template-columns: repeat(3, 1fr); } }
+  label.check {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    padding: 0.4rem 0.7rem; border-radius: 8px; background: var(--gray-50);
+    border: 1.5px solid transparent; font-size: 0.84rem;
+  }
+  label.check input { accent-color: var(--green); flex-shrink: 0; }
+  label.check:has(input:checked) { background: var(--green-soft); border-color: var(--green); color: var(--green-dark); font-weight: 600; }
+
+  /* Audiograma */
+  .audiograma-wrap { overflow-x: auto; margin-top: 0.6rem; }
+  table.audiograma {
+    border-collapse: collapse; width: 100%; min-width: 720px;
+    font-size: 0.82rem;
+  }
+  table.audiograma th, table.audiograma td {
+    border: 1px solid var(--gray-100); padding: 4px 6px; text-align: center;
+  }
+  table.audiograma th {
+    background: var(--blue-xlight); color: var(--blue-dark); font-weight: 700;
+  }
+  table.audiograma th.oido-lbl { background: var(--gray-50); width: 70px; text-align: right; padding-right: 10px; }
+  table.audiograma input {
+    width: 100%; padding: 4px 6px; border: 1px solid var(--gray-100); border-radius: 6px;
+    font-family: ui-monospace, monospace; font-size: 0.82rem; outline: none;
+    background: var(--white); color: var(--text); text-align: center;
+  }
+  table.audiograma input:focus { border-color: var(--green); }
+  .audiograma-hint { font-size: 0.78rem; color: var(--gray-500); margin-top: 0.5rem; }
+
+  .nav-buttons {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--white); border-top: 1px solid var(--gray-100);
+    padding: 0.85rem 5%; display: flex; gap: 0.6rem; justify-content: space-between;
+    z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); flex-wrap: wrap;
+  }
+  .btn {
+    border: none; cursor: pointer; padding: 0.75rem 1.4rem; border-radius: 10px;
+    font-size: 0.92rem; font-weight: 700; font-family: inherit; transition: all 0.18s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color: white; }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(30,111,179,0.35); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--gray-600); border: 1.5px solid var(--gray-100); }
+  .btn-ghost:hover { background: var(--gray-50); }
+
+  .alert {
+    padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.88rem;
+    margin-bottom: 1rem; display: none;
+  }
+  .alert.show { display: block; }
+  .alert-error { background: #FEF2F2; color: var(--error); border: 1px solid #FECACA; }
+  .alert-success { background: var(--green-soft); color: var(--green-dark); border: 1px solid #BBF7D0; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1 class="title">Audiometría</h1>
+  <p class="subtitle">Examen audiométrico ocupacional. El folio se asigna al guardar.</p>
+
+  <div id="folioPill" class="folio-pill" style="display:none"></div>
+  <div id="alert" class="alert"></div>
+
+  <form id="form" novalidate>
+
+    <!-- Datos del expediente -->
+    <section class="section">
+      <h2>Datos básicos</h2>
+      <div class="grid grid-2">
+        <label class="field"><span class="lbl">ID del expediente *</span>
+          <input type="text" id="expediente_id" required placeholder="Pega aquí el ID del expediente del paciente">
+        </label>
+        <label class="field"><span class="lbl">Fecha del examen *</span>
+          <input type="date" id="fecha" required>
+        </label>
+        <label class="field"><span class="lbl">Tipo de examen *</span>
+          <select id="tipo_examen" required>
+            <option value="ingreso">Ingreso</option>
+            <option value="periodico">Periódico</option>
+            <option value="egreso">Egreso</option>
+          </select>
+        </label>
+        <label class="field"><span class="lbl">Motivo de la consulta</span>
+          <select id="motivo_consulta">
+            <option value="audiometria_ocupacional">Audiometría ocupacional</option>
+            <option value="tamizaje_auditivo">Tamizaje auditivo</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- Datos del paciente (lectura del maestro) -->
+    <section class="section">
+      <h2>Datos del paciente</h2>
+      <p style="font-size:0.82rem;color:var(--gray-500);margin-bottom:0.6rem">
+        Datos cargados desde la ficha maestra. Si necesitas corregirlos, edita el paciente desde el panel de pacientes.
+      </p>
+      <div id="pacienteResumen" style="display:flex;gap:1rem;align-items:center;padding:0.6rem;background:var(--gray-50);border-radius:10px;margin-bottom:0.8rem">
+        <div id="pacienteFoto" style="width:60px;height:60px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--gray-500);overflow:hidden;flex-shrink:0">👤</div>
+        <div style="flex:1;min-width:0">
+          <div id="pacienteNombre" style="font-weight:700;color:var(--blue-dark);font-size:1rem"></div>
+          <div id="pacienteMeta" style="font-size:0.78rem;color:var(--gray-600)"></div>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <label class="field"><span class="lbl">Identificación</span>
+          <input type="text" id="paciente_doc" readonly>
+        </label>
+        <label class="field"><span class="lbl">Edad</span>
+          <input type="number" id="paciente_edad" readonly>
+        </label>
+        <label class="field"><span class="lbl">Fecha de nacimiento</span>
+          <input type="date" id="paciente_fecha_nac" readonly>
+        </label>
+        <label class="field"><span class="lbl">Cargo</span>
+          <input type="text" id="paciente_cargo" readonly>
+        </label>
+        <label class="field" style="grid-column:1/-1"><span class="lbl">Empresa</span>
+          <input type="text" id="paciente_empresa" readonly>
+        </label>
+      </div>
+      <input type="hidden" id="paciente_nombre">
+      <input type="hidden" id="paciente_id">
+    </section>
+
+    <!-- Antecedentes auditivos -->
+    <section class="section">
+      <h2>Antecedentes auditivos</h2>
+      <div class="check-grid">
+        <label class="check"><input type="checkbox" data-path="antecedentes.otitis"><span>Otitis previa</span></label>
+        <label class="check"><input type="checkbox" data-path="antecedentes.cirugia_otologica"><span>Cirugía otológica</span></label>
+        <label class="check"><input type="checkbox" data-path="antecedentes.acufenos"><span>Acúfenos</span></label>
+        <label class="check"><input type="checkbox" data-path="antecedentes.hipoacusia"><span>Hipoacusia</span></label>
+        <label class="check"><input type="checkbox" data-path="antecedentes.ototoxicos"><span>Ototóxicos</span></label>
+      </div>
+      <label class="field" style="margin-top:0.85rem">
+        <span class="lbl">Cirugías otológicas — ¿cuáles, cuándo? (si aplica)</span>
+        <textarea data-path="antecedentes.cirugia_otologica_descripcion" rows="2" placeholder="Ej. timpanoplastia oído izquierdo, 2018"></textarea>
+      </label>
+      <label class="field" style="margin-top:0.6rem">
+        <span class="lbl">Otras observaciones (otitis recientes, episodios, tratamientos)</span>
+        <textarea data-path="antecedentes.otras_observaciones" rows="2"></textarea>
+      </label>
+    </section>
+
+    <!-- Actividad extralaboral con exposición al ruido -->
+    <section class="section">
+      <h2>Actividad extralaboral con exposición al ruido</h2>
+      <div class="check-grid">
+        <label class="check"><input type="checkbox" data-path="extralaboral.tejo"><span>Tejo</span></label>
+        <label class="check"><input type="checkbox" data-path="extralaboral.discoteca"><span>Discoteca</span></label>
+        <label class="check"><input type="checkbox" data-path="extralaboral.poligono"><span>Polígono</span></label>
+        <label class="check"><input type="checkbox" data-path="extralaboral.trauma"><span>Trauma</span></label>
+        <label class="check"><input type="checkbox" data-path="extralaboral.moto"><span>Moto</span></label>
+        <label class="check"><input type="checkbox" data-path="extralaboral.audifonos"><span>Audífonos</span></label>
+        <label class="check"><input type="checkbox" data-path="extralaboral.servicio_militar"><span>Servicio militar</span></label>
+      </div>
+    </section>
+
+    <!-- Audiograma -->
+    <section class="section">
+      <h2>Audiograma</h2>
+      <p class="audiograma-hint">Ingresa valores en dB (decibeles) para cada frecuencia. Rango típico: -10 a 120 dB.</p>
+      <div class="audiograma-wrap">
+        <table class="audiograma" id="audiogramaTable">
+          <thead>
+            <tr>
+              <th class="oido-lbl">Oído</th>
+              <th>125</th><th>250</th><th>500</th><th>750</th><th>1000</th>
+              <th>1500</th><th>2000</th><th>3000</th><th>4000</th><th>6000</th><th>8000</th>
+            </tr>
+            <tr>
+              <th class="oido-lbl">Hz</th>
+              <th colspan="11" style="background:var(--gray-50);font-weight:400;color:var(--gray-500)">Valores en dB</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="oido-lbl">OD</th>
+              <td><input type="number" min="-10" max="120" data-aud="od_125"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_250"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_500"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_750"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_1000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_1500"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_2000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_3000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_4000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_6000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="od_8000"></td>
+            </tr>
+            <tr>
+              <th class="oido-lbl">OI</th>
+              <td><input type="number" min="-10" max="120" data-aud="oi_125"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_250"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_500"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_750"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_1000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_1500"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_2000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_3000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_4000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_6000"></td>
+              <td><input type="number" min="-10" max="120" data-aud="oi_8000"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Otoscopia + audiómetro -->
+    <section class="section">
+      <h2>Otoscopia y equipo</h2>
+      <div class="grid grid-3">
+        <label class="field"><span class="lbl">Otoscopia OD</span>
+          <input type="text" data-path="otoscopia.od" placeholder="Normal / hallazgos">
+        </label>
+        <label class="field"><span class="lbl">Otoscopia OI</span>
+          <input type="text" data-path="otoscopia.oi" placeholder="Normal / hallazgos">
+        </label>
+        <label class="field"><span class="lbl">Referencia audiómetro</span>
+          <input type="text" data-path="ref_audiometro" value="AMBCO">
+        </label>
+      </div>
+    </section>
+
+    <!-- Resultados -->
+    <section class="section">
+      <h2>Resultados</h2>
+      <div class="check-grid" style="grid-template-columns:1fr 1fr">
+        <label class="check"><input type="checkbox" data-path="resultados.normal"><span>Audiometría dentro de parámetros normales</span></label>
+        <label class="check"><input type="checkbox" data-path="resultados.hipoacusia.presente"><span>Hipoacusia</span></label>
+      </div>
+      <label class="field" style="margin-top:0.7rem"><span class="lbl">Grado de hipoacusia (si aplica)</span>
+        <input type="text" data-path="resultados.hipoacusia.grado" placeholder="Ej: leve, moderada, severa">
+      </label>
+    </section>
+
+    <!-- Recomendaciones -->
+    <section class="section">
+      <h2>Recomendaciones</h2>
+      <label class="field"><span class="lbl">Texto libre</span>
+        <textarea data-path="recomendaciones" rows="4" placeholder="Ej: usar protección auditiva, controles periódicos..."></textarea>
+      </label>
+      <p style="font-size:0.78rem;color:var(--gray-500);margin-top:0.4rem">
+        💡 El catálogo de recomendaciones del médico se conectará en el siguiente sprint.
+      </p>
+    </section>
+
+  </form>
+</main>
+
+<div class="nav-buttons">
+  <button type="button" class="btn btn-ghost" onclick="window.history.back()">Cancelar</button>
+  <button type="button" class="btn btn-primary" id="saveBtn">Guardar audiometría</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES, TIPOS_DOCUMENTO, getNextFolio } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+  import { calcularEdad } from './js/utils.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null;
+  let userData = {};
+
+  // Si llega ?expediente=ID por URL, lo pre-rellena
+  const url = new URL(window.location.href);
+  const expedienteFromUrl = url.searchParams.get('expediente');
+  if (expedienteFromUrl) {
+    document.getElementById('expediente_id').value = expedienteFromUrl;
+  }
+  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userData = snap.exists() ? snap.data() : {};
+    if (![ROLES.MEDICO, ROLES.SECRETARIA, ROLES.ADMIN].includes(userData.rol)) {
+      window.location.href = 'portal.html'; return;
+    }
+    currentUser = user;
+
+    // Si hay expediente_id, intentar precargar datos del paciente
+    if (expedienteFromUrl) precargarExpediente(expedienteFromUrl);
+  });
+
+  async function precargarExpediente(expId) {
+    try {
+      const exp = await getDoc(doc(db, 'expedientes', expId));
+      if (!exp.exists()) return;
+      const e = exp.data();
+      let snap = e.paciente_snapshot || {};
+      let foto_url = snap.foto_url || null;
+
+      // Si el expediente tiene paciente_id, leer la ficha maestra (datos vivos)
+      if (e.paciente_id) {
+        document.getElementById('paciente_id').value = e.paciente_id;
+        const pSnap = await getDoc(doc(db, 'pacientes', e.paciente_id));
+        if (pSnap.exists()) {
+          const p = pSnap.data();
+          snap = { ...snap, ...p };
+          foto_url = p.foto_url || foto_url;
+        }
+      }
+
+      const nombreCompleto = ((snap.nombres||'') + ' ' + (snap.apellidos||'')).trim();
+      const edad = snap.fecha_nacimiento ? calcularEdad(snap.fecha_nacimiento) : (snap.edad || '');
+      document.getElementById('paciente_nombre').value = nombreCompleto;
+      document.getElementById('paciente_doc').value = snap.numero_documento || '';
+      document.getElementById('paciente_edad').value = edad ?? '';
+      document.getElementById('paciente_fecha_nac').value = snap.fecha_nacimiento || '';
+      document.getElementById('paciente_cargo').value = snap.cargo || '';
+      document.getElementById('paciente_empresa').value = snap.empresa_nombre || e.empresa_nombre || '';
+      document.getElementById('pacienteNombre').textContent = nombreCompleto;
+      document.getElementById('pacienteMeta').textContent =
+        `${snap.tipo_documento || 'CC'} ${snap.numero_documento || ''} · ${edad ? edad + ' años' : ''} · ${snap.empresa_nombre || e.empresa_nombre || ''}`;
+      if (foto_url) {
+        document.getElementById('pacienteFoto').innerHTML = `<img src="${foto_url}" style="width:100%;height:100%;object-fit:cover">`;
+      }
+    } catch (err) { console.warn('No se pudo precargar el expediente:', err); }
+  }
+
+  function setNested(obj, path, val) {
+    const parts = path.split('.'); let cur = obj;
+    for (let i = 0; i < parts.length - 1; i++) { cur[parts[i]] = cur[parts[i]] || {}; cur = cur[parts[i]]; }
+    cur[parts[parts.length - 1]] = val;
+  }
+  function showAlert(type, msg) {
+    const a = document.getElementById('alert');
+    a.className = 'alert show alert-' + type; a.textContent = msg;
+    a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    if (!currentUser) return;
+    const expediente_id = document.getElementById('expediente_id').value.trim();
+    const fecha_str     = document.getElementById('fecha').value;
+    const nombre        = document.getElementById('paciente_nombre').value.trim();
+    const cedula        = document.getElementById('paciente_doc').value.trim();
+
+    if (!expediente_id || !fecha_str || !nombre || !cedula) {
+      showAlert('error', 'Faltan campos obligatorios.'); return;
+    }
+
+    let folio;
+    try { folio = await getNextFolio(TIPOS_DOCUMENTO.AUDIOMETRIA, db); }
+    catch (e) { showAlert('error', 'Error generando folio: ' + e.message); return; }
+
+    // Recoger audiograma
+    const audiograma = { od: {}, oi: {} };
+    document.querySelectorAll('[data-aud]').forEach(el => {
+      const [oido, freq] = el.dataset.aud.split('_');
+      if (el.value !== '') audiograma[oido][freq] = Number(el.value);
+    });
+
+    // Datos base
+    const data = {
+      folio,
+      expediente_id,
+      paciente_id: document.getElementById('paciente_id').value || null,
+      tipo_documento: 'AUD',
+      fecha: new Date(fecha_str),
+      tipo_examen: document.getElementById('tipo_examen').value,
+      motivo_consulta: document.getElementById('motivo_consulta').value,
+      paciente_snapshot: {
+        nombre,
+        identificacion: cedula,
+        edad: parseInt(document.getElementById('paciente_edad').value, 10) || null,
+        fecha_nacimiento: document.getElementById('paciente_fecha_nac').value || null,
+        cargo: document.getElementById('paciente_cargo').value.trim(),
+        empresa: document.getElementById('paciente_empresa').value.trim()
+      },
+      antecedentes:  { otitis:false, cirugia_otologica:false, cirugia_otologica_descripcion:'', otras_observaciones:'', acufenos:false, hipoacusia:false, ototoxicos:false },
+      extralaboral:  { tejo:false, discoteca:false, poligono:false, trauma:false, moto:false, audifonos:false, servicio_militar:false },
+      audiograma,
+      otoscopia:     { od:'', oi:'' },
+      ref_audiometro:'AMBCO',
+      resultados:    { normal:false, hipoacusia: { presente:false, grado:'' } },
+      recomendaciones:'',
+      medico_uid:    currentUser.uid,
+      medico_nombre: ((userData.nombres||'') + ' ' + (userData.apellidos||'')).trim(),
+      createdAt:     serverTimestamp(),
+      updatedAt:     serverTimestamp()
+    };
+
+    // Aplicar campos data-path
+    document.querySelectorAll('[data-path]').forEach(el => {
+      const val = el.type === 'checkbox' ? el.checked : el.value;
+      setNested(data, el.dataset.path, val);
+    });
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      await setDoc(doc(db, 'audiometrias', folio), data);
+      // Actualizar el expediente: marcar audiometría como completada
+      try {
+        await updateDoc(doc(db, 'expedientes', expediente_id), {
+          'examenes_estado.audiometria': 'completado',
+          'documentos.audiometria': folio,
+          updatedAt: serverTimestamp()
+        });
+      } catch (_) { /* puede que el expediente no tenga ese campo aún */ }
+
+      document.getElementById('folioPill').textContent = '✓ Folio: ' + folio;
+      document.getElementById('folioPill').style.display = 'inline-block';
+      showAlert('success', '✓ Audiometría guardada con folio ' + folio);
+      btn.textContent = '✓ Guardado';
+      setTimeout(() => window.location.href = 'expediente.html?id=' + encodeURIComponent(expediente_id), 1800);
+    } catch (err) {
+      console.error(err);
+      showAlert('error', 'Error al guardar: ' + (err.message || err.code));
+      btn.disabled = false; btn.textContent = 'Guardar audiometría';
+    }
+  });
+</script>
+</body>
+</html>

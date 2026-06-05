@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Nueva Visiometría · Reina María IPS</title>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="prefetch" href="expediente.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#1E6FB3;--blue-dark:#0E3D6E;--blue-xlight:#EAF3FB;--green:#4FB3A2;--green-dark:#2F8D7B;--green-soft:#E6F4F1;--yellow:#FFD600;--yellow-soft:#FFF8E1;--yellow-dark:#F9A825;--white:#FFFFFF;--gray-50:#F7FAFC;--gray-100:#EEF3F7;--gray-300:#CBD5E0;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--text:#1A2233;--error:#DC2626;--shadow:0 4px 18px rgba(14,61,110,0.08);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--gray-50);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  a{color:inherit;}
+  header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:0.85rem 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);gap:0.8rem;}
+  header img{height:38px;width:auto;max-width:150px;object-fit:contain;background:white;padding:4px 8px;border-radius:8px;}
+  header .back{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;font-weight:500;}
+  header .back:hover{color:var(--yellow);}
+  main{max-width:1000px;margin:0 auto;padding:1.5rem 5% 6rem;}
+  h1.title{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,1.9rem);color:var(--blue-dark);margin-bottom:0.3rem;}
+  .subtitle{color:var(--gray-600);font-size:0.92rem;margin-bottom:1.5rem;}
+  .codigo-formato{display:inline-block;background:var(--yellow-soft);color:var(--yellow-dark);padding:3px 10px;border-radius:50px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-left:0.5rem;}
+  .section{background:var(--white);border-radius:16px;padding:1.4rem;box-shadow:var(--shadow);margin-bottom:1rem;border:1px solid var(--gray-100);}
+  .section h2{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-dark);margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+  .section h2::before{content:'';width:5px;height:22px;background:var(--green);border-radius:3px;}
+  .grid{display:grid;gap:0.75rem;grid-template-columns:1fr;}
+  @media(min-width:600px){.grid-2{grid-template-columns:1fr 1fr;}.grid-3{grid-template-columns:1fr 1fr 1fr;}.grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}}
+  label.field{display:block;}
+  label.field .lbl{display:block;font-size:0.74rem;font-weight:600;color:var(--blue-dark);margin-bottom:0.25rem;}
+  label.field input,label.field select,label.field textarea{width:100%;padding:0.55rem 0.75rem;border:1.5px solid var(--gray-100);border-radius:8px;font-family:inherit;font-size:0.88rem;outline:none;background:var(--white);color:var(--text);}
+  label.field input:focus,label.field select:focus,label.field textarea:focus{border-color:var(--green);}
+  label.check{display:flex;align-items:center;gap:8px;cursor:pointer;padding:0.4rem 0.7rem;border-radius:8px;background:var(--gray-50);border:1.5px solid transparent;font-size:0.84rem;}
+  label.check input{accent-color:var(--green);flex-shrink:0;}
+  label.check:has(input:checked){background:var(--green-soft);border-color:var(--green);color:var(--green-dark);font-weight:600;}
+  .pruebas-tabla{width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.85rem;}
+  .pruebas-tabla th,.pruebas-tabla td{border:1px solid var(--gray-100);padding:0.5rem;text-align:center;}
+  .pruebas-tabla th{background:var(--blue-xlight);color:var(--blue-dark);}
+  .pruebas-tabla input,.pruebas-tabla select{width:100%;padding:0.35rem 0.5rem;border:1px solid var(--gray-100);border-radius:6px;font-family:inherit;font-size:0.82rem;outline:none;background:white;}
+  .folio-pill{display:inline-block;background:var(--blue-xlight);color:var(--blue-dark);padding:4px 12px;border-radius:50px;font-size:0.78rem;font-weight:700;font-family:ui-monospace,monospace;margin-bottom:1rem;}
+  .nav-buttons{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--gray-100);padding:0.85rem 5%;display:flex;gap:0.6rem;justify-content:space-between;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,0.06);}
+  .btn{border:none;cursor:pointer;padding:0.75rem 1.4rem;border-radius:10px;font-size:0.92rem;font-weight:700;font-family:inherit;}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;}
+  .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(30,111,179,0.35);}
+  .btn-ghost{background:transparent;color:var(--gray-600);border:1.5px solid var(--gray-100);}
+  .alert{padding:0.85rem 1rem;border-radius:10px;font-size:0.88rem;margin-bottom:1rem;display:none;}
+  .alert.show{display:block;}
+  .alert-error{background:#FEF2F2;color:var(--error);border:1px solid #FECACA;}
+  .alert-success{background:var(--green-soft);color:var(--green-dark);border:1px solid #BBF7D0;}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1 class="title">Examen Visiométrico</h1>
+  <p class="subtitle">Examen visiométrico ocupacional. El folio se asigna al guardar.</p>
+
+  <div id="folioPill" class="folio-pill" style="display:none"></div>
+  <div id="alert" class="alert"></div>
+
+  <form id="form" novalidate>
+
+    <section class="section">
+      <h2>Datos básicos</h2>
+      <div class="grid grid-2">
+        <label class="field"><span class="lbl">ID del expediente *</span><input type="text" id="expediente_id" required></label>
+        <label class="field"><span class="lbl">Fecha *</span><input type="date" id="fecha" required></label>
+        <label class="field"><span class="lbl">Tipo *</span>
+          <select id="tipo">
+            <option value="ingreso">Ingreso</option>
+            <option value="periodico">Periódico</option>
+            <option value="reubicacion">Reubicación</option>
+            <option value="egreso">Egreso</option>
+            <option value="post_incapacidad">Post-incapacidad</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Datos del paciente</h2>
+      <p style="font-size:0.82rem;color:var(--gray-500);margin-bottom:0.6rem">Datos cargados desde la ficha maestra del paciente.</p>
+      <div class="grid grid-2">
+        <label class="field"><span class="lbl">Nombre</span><input type="text" id="paciente_nombre" readonly></label>
+        <label class="field"><span class="lbl">Identificación</span><input type="text" id="paciente_doc" readonly></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Historia ocular relevante</h2>
+      <div class="grid grid-2">
+        <label class="check"><input type="checkbox" data-path="historia_ocular.usa_lentes"><span>¿Usa lentes o gafas?</span></label>
+        <label class="check"><input type="checkbox" data-path="historia_ocular.cirugias_oculares.si"><span>¿Cirugías oculares previas?</span></label>
+        <label class="field"><span class="lbl">¿Cuáles cirugías?</span><input type="text" data-path="historia_ocular.cirugias_oculares.cuales"></label>
+        <label class="field"><span class="lbl">Enfermedades visuales diagnosticadas</span><input type="text" data-path="historia_ocular.enfermedades_visuales" placeholder="Niega / describir"></label>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Resultados de pruebas visuales</h2>
+      <table class="pruebas-tabla">
+        <thead>
+          <tr><th>Prueba</th><th>Ojo Derecho (OD)</th><th>Ojo Izquierdo (OI)</th><th>Binocular</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:left;font-weight:600">Agudeza Visual Lejana (Snellen)</td>
+            <td><input type="text" data-path="pruebas.av_lejana.od" placeholder="20/20"></td>
+            <td><input type="text" data-path="pruebas.av_lejana.oi" placeholder="20/20"></td>
+            <td><input type="text" data-path="pruebas.av_lejana.binocular" placeholder="20/20"></td>
+          </tr>
+          <tr>
+            <td style="text-align:left;font-weight:600">Agudeza Visual Cercana (Jaeger)</td>
+            <td><input type="text" data-path="pruebas.av_cercana.od" placeholder="+0.50"></td>
+            <td><input type="text" data-path="pruebas.av_cercana.oi" placeholder="+0.50"></td>
+            <td><input type="text" data-path="pruebas.av_cercana.binocular" placeholder="+0.50"></td>
+          </tr>
+          <tr>
+            <td style="text-align:left;font-weight:600">Visión de Colores (Ishihara)</td>
+            <td colspan="3">
+              <select data-path="pruebas.vision_colores">
+                <option value="normal">Normal</option><option value="alterada">Alterada</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align:left;font-weight:600">Estereopsis (Titmus)</td>
+            <td colspan="3">
+              <select data-path="pruebas.estereopsis">
+                <option value="normal">Normal</option><option value="alterada">Alterada</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align:left;font-weight:600">Campo Visual (opcional)</td>
+            <td>
+              <select data-path="pruebas.campo_visual.od">
+                <option value="normal">Normal</option><option value="alterado">Alterado</option>
+              </select>
+            </td>
+            <td>
+              <select data-path="pruebas.campo_visual.oi">
+                <option value="normal">Normal</option><option value="alterado">Alterado</option>
+              </select>
+            </td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Concepto ocupacional visual</h2>
+      <label class="field"><span class="lbl">Concepto *</span>
+        <select id="concepto" required>
+          <option value="apto_sin_restricciones">Apto sin restricciones</option>
+          <option value="apto_con_restricciones">Apto con restricciones</option>
+          <option value="no_apto_alturas">No apto para trabajo en alturas</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="section">
+      <h2>Recomendaciones</h2>
+      <label class="field"><span class="lbl">Texto libre</span>
+        <textarea data-path="recomendaciones" rows="4" placeholder="Ej: control con optometría, protección visual con lentes de alto filtro..."></textarea>
+      </label>
+    </section>
+
+  </form>
+</main>
+
+<div class="nav-buttons">
+  <button type="button" class="btn btn-ghost" onclick="window.history.back()">Cancelar</button>
+  <button type="button" class="btn btn-primary" id="saveBtn">Guardar visiometría</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES, TIPOS_DOCUMENTO, getNextFolio } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  let currentUser = null, userData = {};
+  let pacienteIdActual = null;
+
+  const url = new URL(window.location.href);
+  const expedienteFromUrl = url.searchParams.get('expediente');
+  if (expedienteFromUrl) document.getElementById('expediente_id').value = expedienteFromUrl;
+  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userData = snap.exists() ? snap.data() : {};
+    if (![ROLES.MEDICO, ROLES.SECRETARIA, ROLES.ADMIN].includes(userData.rol)) {
+      window.location.href = 'portal.html'; return;
+    }
+    currentUser = user;
+    if (expedienteFromUrl) precargarExpediente(expedienteFromUrl);
+  });
+
+  async function precargarExpediente(expId) {
+    try {
+      const exp = await getDoc(doc(db, 'expedientes', expId));
+      if (!exp.exists()) return;
+      const e = exp.data();
+      let snap = e.paciente_snapshot || {};
+      if (e.paciente_id) {
+        pacienteIdActual = e.paciente_id;
+        const pSnap = await getDoc(doc(db, 'pacientes', e.paciente_id));
+        if (pSnap.exists()) snap = { ...snap, ...pSnap.data() };
+      }
+      document.getElementById('paciente_nombre').value = ((snap.nombres||'')+' '+(snap.apellidos||'')).trim();
+      document.getElementById('paciente_doc').value = snap.numero_documento || '';
+    } catch (err) { console.warn('precargarExpediente:', err); }
+  }
+
+  function setNested(obj, path, val) {
+    const parts = path.split('.'); let cur = obj;
+    for (let i = 0; i < parts.length - 1; i++) { cur[parts[i]] = cur[parts[i]] || {}; cur = cur[parts[i]]; }
+    cur[parts[parts.length - 1]] = val;
+  }
+  function showAlert(type, msg) {
+    const a = document.getElementById('alert');
+    a.className = 'alert show alert-' + type; a.textContent = msg;
+    a.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    if (!currentUser) return;
+    const expediente_id = document.getElementById('expediente_id').value.trim();
+    const fecha_str     = document.getElementById('fecha').value;
+    const nombre        = document.getElementById('paciente_nombre').value.trim();
+    const cedula        = document.getElementById('paciente_doc').value.trim();
+    if (!expediente_id || !fecha_str || !nombre || !cedula) {
+      showAlert('error', 'Faltan campos obligatorios.'); return;
+    }
+
+    let folio;
+    try { folio = await getNextFolio(TIPOS_DOCUMENTO.VISIOMETRIA, db); }
+    catch (e) { showAlert('error', 'Error generando folio: ' + e.message); return; }
+
+    const data = {
+      folio, expediente_id,
+      paciente_id: pacienteIdActual,
+      tipo_documento:'VIS',
+      fecha: new Date(fecha_str),
+      tipo: document.getElementById('tipo').value,
+      paciente_snapshot: { nombre, identificacion: cedula },
+      historia_ocular: {
+        usa_lentes: false,
+        cirugias_oculares: { si: false, cuales: '' },
+        enfermedades_visuales: ''
+      },
+      pruebas: {
+        av_lejana:  { od:'', oi:'', binocular:'' },
+        av_cercana: { od:'', oi:'', binocular:'' },
+        vision_colores: 'normal',
+        estereopsis: 'normal',
+        campo_visual: { od:'normal', oi:'normal' }
+      },
+      concepto: document.getElementById('concepto').value,
+      recomendaciones: '',
+      medico_uid: currentUser.uid,
+      medico_nombre: ((userData.nombres||'')+' '+(userData.apellidos||'')).trim(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    document.querySelectorAll('[data-path]').forEach(el => {
+      const val = el.type === 'checkbox' ? el.checked : el.value;
+      setNested(data, el.dataset.path, val);
+    });
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      await setDoc(doc(db, 'visiometrias', folio), data);
+      try {
+        await updateDoc(doc(db, 'expedientes', expediente_id), {
+          'examenes_estado.visiometria': 'completado',
+          'documentos.visiometria': folio,
+          updatedAt: serverTimestamp()
+        });
+      } catch (_) {}
+      document.getElementById('folioPill').textContent = '✓ Folio: ' + folio;
+      document.getElementById('folioPill').style.display = 'inline-block';
+      showAlert('success', '✓ Visiometría guardada con folio ' + folio);
+      btn.textContent = '✓ Guardado';
+      setTimeout(() => window.location.href = 'expediente.html?id=' + encodeURIComponent(expediente_id), 1800);
+    } catch (err) {
+      console.error(err);
+      showAlert('error', 'Error: ' + (err.message || err.code));
+      btn.disabled = false; btn.textContent = 'Guardar visiometría';
+    }
+  });
+</script>
+</body>
+</html>

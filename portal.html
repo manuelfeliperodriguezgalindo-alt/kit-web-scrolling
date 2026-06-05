@@ -3,51 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<link rel="apple-touch-icon" href="assets/logo-cuadrado.png">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="prefetch" href="dashboard-empleado.html">
+<link rel="prefetch" href="dashboard-empresa.html">
+<link rel="prefetch" href="cuenta-pendiente.html">
 <title>Portal de Acceso – Reina María IPS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --blue: #1565C0; --blue-dark: #0D3B8C; --blue-light: #42A5F5;
-    --blue-xlight: #E3F2FD; --yellow: #FFD600; --yellow-dark: #F9A825;
-    --white: #FFFFFF; --gray-50: #F8FAFC; --gray-100: #EFF3F8;
-    --gray-400: #9CA3AF; --gray-600: #4B5563; --text: #1A202C;
+    --blue: #1E6FB3; --blue-dark: #0E3D6E; --blue-light: #4FA1D9;
+    --blue-xlight: #EAF3FB;
+    --green: #4FB3A2; --green-dark: #2F8D7B; --green-soft: #E6F4F1;
+    --white: #FFFFFF; --gray-50: #F7FAFC; --gray-100: #EEF3F7;
+    --gray-400: #9CA3AF; --gray-600: #4B5563; --text: #1A2233;
     --error: #DC2626; --success: #16A34A;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Inter', sans-serif; color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text);
     min-height: 100vh; display: flex; flex-direction: column;
-    background: var(--gray-50);
+    background:
+      radial-gradient(ellipse at top right, rgba(79,179,162,0.08), transparent 60%),
+      var(--gray-50);
+    -webkit-font-smoothing: antialiased;
   }
 
   /* ── HEADER ── */
   header {
-    background: var(--blue-dark); padding: 1rem 5%;
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    padding: 1rem 5%;
     display: flex; align-items: center; justify-content: space-between;
   }
   .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .logo-wrap img { height: 44px; }
-  .logo-text { color: white; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.2; }
-  .logo-sub { font-size: 0.6rem; letter-spacing: 2px; color: var(--yellow); text-transform: uppercase; font-family: 'Inter', sans-serif; font-weight: 600; }
-  .back-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
-  .back-link:hover { color: var(--yellow); }
+  .logo-wrap img { height: 42px; }
+  .logo-text { color: white; font-family: 'Playfair Display', serif; font-size: 1.05rem; line-height: 1.2; }
+  .logo-sub { font-size: 0.6rem; letter-spacing: 2px; color: #8FE3D2; text-transform: uppercase; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .back-link { color: rgba(255,255,255,0.78); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .back-link:hover { color: #8FE3D2; }
 
   /* ── MAIN ── */
   main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 5%; }
 
   /* ── PORTAL CARD ── */
   .portal-card {
-    background: var(--white); border-radius: 28px;
-    box-shadow: 0 8px 48px rgba(21,101,192,0.14);
+    background: var(--white); border-radius: 24px;
+    box-shadow: 0 14px 44px rgba(14,61,110,0.14);
     width: 100%; max-width: 480px; overflow: hidden;
+    border: 1px solid rgba(79,179,162,0.15);
   }
   .card-header {
     background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-    padding: 2.5rem 2.5rem 2rem; text-align: center; position: relative;
+    padding: 2.2rem 2.5rem 1.9rem; text-align: center; position: relative;
+    overflow: hidden;
   }
-  .card-header-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
-  .card-header h1 { font-family: 'Playfair Display', serif; color: white; font-size: 1.6rem; }
-  .card-header p { color: rgba(255,255,255,0.75); font-size: 0.85rem; margin-top: 0.4rem; }
+  .card-header::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(79,179,162,0.25), transparent 60%);
+    pointer-events: none;
+  }
+  .card-header-icon { font-size: 2.4rem; margin-bottom: 0.7rem; position: relative; z-index: 1; }
+  .card-header h1 { font-family: 'Playfair Display', serif; color: white; font-size: 1.55rem; position: relative; z-index: 1; }
+  .card-header p { color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-top: 0.4rem; position: relative; z-index: 1; }
 
   /* ── TABS ── */
   .tabs { display: flex; border-bottom: 2px solid var(--gray-100); }
@@ -77,8 +99,8 @@
     color: var(--text);
   }
   .form-group input:focus, .form-group select:focus {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(79,179,162,0.18);
   }
   .form-group input.error { border-color: var(--error); }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -103,19 +125,19 @@
   .role-label .role-icon { font-size: 1.6rem; }
   .role-label .role-name { font-size: 0.82rem; font-weight: 600; color: var(--gray-600); }
   .role-option input:checked + .role-label {
-    border-color: var(--blue); background: var(--blue-xlight); color: var(--blue);
+    border-color: var(--green); background: var(--green-soft); color: var(--green-dark);
   }
-  .role-option input:checked + .role-label .role-name { color: var(--blue); }
+  .role-option input:checked + .role-label .role-name { color: var(--green-dark); }
 
   /* Submit button */
   .btn-submit {
     width: 100%; background: linear-gradient(135deg, var(--blue), var(--blue-dark));
     color: white; border: none; padding: 0.95rem; border-radius: 12px;
-    font-size: 1rem; font-weight: 700; cursor: pointer;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
     transition: all 0.25s; font-family: 'Inter', sans-serif; margin-top: 0.5rem;
     display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(21,101,192,0.35); }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(30,111,179,0.35); }
   .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
   .spinner {
     width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4);
@@ -154,8 +176,10 @@
   .btn-cancel:hover { background: var(--gray-50); }
 
   /* ── FOOTER ── */
-  footer { background: var(--blue-dark); color: rgba(255,255,255,0.6); padding: 1.2rem 5%; text-align: center; font-size: 0.78rem; }
-  footer a { color: var(--yellow); text-decoration: none; }
+  footer { background: var(--blue-dark); color: rgba(255,255,255,0.65); padding: 1.2rem 5%; text-align: center; font-size: 0.78rem; line-height: 1.6; }
+  footer a { color: var(--green); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer .legal-line { display: block; margin-top: 0.3rem; font-size: 0.72rem; color: rgba(255,255,255,0.55); }
 
   @media (max-width: 540px) {
     .card-body { padding: 1.5rem; }
@@ -186,7 +210,7 @@
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('login')">Iniciar sesión</button>
-      <button class="tab-btn" onclick="switchTab('register')">Registrarse</button>
+      <button class="tab-btn" onclick="switchTab('register')">Crear cuenta</button>
     </div>
 
     <div class="card-body">
@@ -218,30 +242,14 @@
         </form>
       </div>
 
-      <!-- REGISTER -->
+      <!-- REGISTER (registro libre, queda en estado "pendiente" hasta que admin apruebe) -->
       <div class="tab-content" id="tab-register">
+        <div style="background:#FFF8E1;color:#8C6700;border:1px solid #FFD600;padding:0.7rem 0.85rem;border-radius:8px;font-size:0.82rem;margin-bottom:1rem;line-height:1.5">
+          ⚠️ <strong>Tu cuenta quedará pendiente</strong> hasta que un administrador la apruebe. Pídele al admin de Reina María IPS que te asigne un rol.
+        </div>
         <div class="alert alert-error" id="register-error">⚠️ <span id="register-error-msg"></span></div>
         <div class="alert alert-success" id="register-success">✅ <span>Cuenta creada. Revisa tu correo para verificarla.</span></div>
         <form onsubmit="handleRegister(event)">
-          <div style="margin-bottom:1rem">
-            <label style="font-size:0.82rem;font-weight:600;color:var(--blue-dark);display:block;margin-bottom:0.6rem">Tipo de usuario</label>
-            <div class="role-selector">
-              <div class="role-option">
-                <input type="radio" name="role" id="role-patient" value="paciente" checked>
-                <label class="role-label" for="role-patient">
-                  <span class="role-icon">🙍</span>
-                  <span class="role-name">Paciente</span>
-                </label>
-              </div>
-              <div class="role-option">
-                <input type="radio" name="role" id="role-employee" value="empleado">
-                <label class="role-label" for="role-employee">
-                  <span class="role-icon">👨‍⚕️</span>
-                  <span class="role-name">Empleado</span>
-                </label>
-              </div>
-            </div>
-          </div>
           <div class="form-row">
             <div class="form-group">
               <label>Nombre</label>
@@ -280,13 +288,6 @@
               <button type="button" class="toggle-pass" onclick="togglePass('reg-pass',this)">👁️</button>
             </div>
           </div>
-          <div class="form-group" id="employee-code-wrap" style="display:none">
-            <label>Código de empleado</label>
-            <div class="input-wrap">
-              <span class="input-icon">🔑</span>
-              <input type="text" id="reg-empcode" placeholder="Código asignado por la IPS">
-            </div>
-          </div>
           <button type="submit" class="btn-submit" id="register-btn">
             <div class="spinner" id="register-spinner"></div>
             <span id="register-btn-text">Crear cuenta</span>
@@ -320,30 +321,30 @@
 </div>
 
 <footer>
-  © 2026 Reina María IPS · <a href="#">Política de privacidad</a> · <a href="#">Habeas Data</a>
+  © 2026 Reina María IPS · <a href="index.html">Volver al inicio</a><br>
+  <span class="legal-line">Cumplimos la <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=44214" target="_blank" rel="noopener">Ley 1581 de 2012</a> de protección de datos personales.</span>
 </footer>
 
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-  // ── FIREBASE CONFIG ── (reemplaza con tus credenciales)
-  const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROYECTO.firebaseapp.com",
-    projectId: "TU_PROYECTO",
-    storageBucket: "TU_PROYECTO.appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
-  };
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES, EMPRESA_PARTICULAR, rolToDashboard } from './js/firebase-config.js';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const EMPLOYEE_CODE = "REINA2026"; // Código secreto para empleados — cámbialo
+  // Si ya hay sesión activa, redirigir al dashboard correspondiente
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      const rol = snap.exists() ? snap.data().rol : ROLES.PACIENTE;
+      window.location.href = rolToDashboard(rol);
+    } catch (e) { /* silencioso: el usuario sigue en el portal */ }
+  });
 
   // Exponer al scope global para los handlers HTML
   window._auth = auth;
@@ -355,7 +356,11 @@
   window._setDoc = setDoc;
   window._getDoc = getDoc;
   window._doc = doc;
-  window._EMPLOYEE_CODE = EMPLOYEE_CODE;
+  window._serverTimestamp = serverTimestamp;
+  window._sendEmailVerification = sendEmailVerification;
+  window._ROLES = ROLES;
+  window._EMPRESA_PARTICULAR = EMPRESA_PARTICULAR;
+  window._rolToDashboard = rolToDashboard;
 </script>
 
 <script>
@@ -373,14 +378,6 @@ function togglePass(id, btn) {
   btn.textContent = input.type === 'password' ? '👁️' : '🙈';
 }
 
-// ── SHOW/HIDE EMPLOYEE CODE ──
-document.querySelectorAll('input[name="role"]').forEach(r => {
-  r.addEventListener('change', () => {
-    document.getElementById('employee-code-wrap').style.display =
-      r.value === 'empleado' && r.checked ? 'block' : 'none';
-  });
-});
-
 // ── LOGIN ──
 async function handleLogin(e) {
   e.preventDefault();
@@ -392,8 +389,8 @@ async function handleLogin(e) {
   try {
     const cred = await window._signIn(window._auth, email, pass);
     const userDoc = await window._getDoc(window._doc(window._db, 'users', cred.user.uid));
-    const role = userDoc.exists() ? userDoc.data().role : 'paciente';
-    window.location.href = role === 'empleado' ? 'dashboard-empleado.html' : 'dashboard-paciente.html';
+    const rol = userDoc.exists() ? userDoc.data().rol : window._ROLES.PACIENTE;
+    window.location.href = window._rolToDashboard(rol);
   } catch (err) {
     showAlert('login-error', 'login-error-msg', translateError(err.code));
     setLoading('login', false);
@@ -401,35 +398,45 @@ async function handleLogin(e) {
 }
 
 // ── REGISTER ──
+// Registro abierto: cualquiera crea cuenta y queda en rol "pendiente".
+// El admin después le asigna el rol real (medico/secretaria/empresa) desde el panel.
 async function handleRegister(e) {
   e.preventDefault();
-  const nombre = document.getElementById('reg-nombre').value.trim();
-  const apellido = document.getElementById('reg-apellido').value.trim();
-  const cedula = document.getElementById('reg-cedula').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
+  const nombres = document.getElementById('reg-nombre').value.trim();
+  const apellidos = document.getElementById('reg-apellido').value.trim();
+  const numero_documento = document.getElementById('reg-cedula').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
   const pass = document.getElementById('reg-pass').value;
-  const role = document.querySelector('input[name="role"]:checked').value;
-  const empCode = document.getElementById('reg-empcode').value.trim();
   hideAlert('register-error'); hideAlert('register-success');
-
-  if (role === 'empleado' && empCode !== window._EMPLOYEE_CODE) {
-    showAlert('register-error', 'register-error-msg', 'Código de empleado incorrecto.');
-    return;
-  }
 
   setLoading('register', true);
   try {
+    // 1) Crear usuario en Auth
     const cred = await window._createUser(window._auth, email, pass);
-    await window._updateProfile(cred.user, { displayName: nombre + ' ' + apellido });
+    await window._updateProfile(cred.user, { displayName: nombres + ' ' + apellidos });
+
+    // 2) Crear doc en users/{uid} con rol "pendiente"
     await window._setDoc(window._doc(window._db, 'users', cred.user.uid), {
-      nombre, apellido, cedula, email, role,
-      createdAt: new Date().toISOString()
+      uid: cred.user.uid,
+      rol: 'pendiente',
+      email, nombres, apellidos,
+      tipo_documento: 'CC',
+      numero_documento,
+      createdAt: window._serverTimestamp(),
+      updatedAt: window._serverTimestamp()
     });
+
+    // 3) Disparar correo de verificación
+    try { await window._sendEmailVerification(cred.user); } catch (_) {}
+
     document.getElementById('register-success').classList.add('show');
+    document.getElementById('register-success').querySelector('span').textContent =
+      'Cuenta creada. Verifica tu correo y espera la aprobación del administrador para acceder.';
     setTimeout(() => {
-      window.location.href = role === 'empleado' ? 'dashboard-empleado.html' : 'dashboard-paciente.html';
-    }, 2000);
+      window.location.href = 'cuenta-pendiente.html';
+    }, 2500);
   } catch (err) {
+    console.error(err);
     showAlert('register-error', 'register-error-msg', translateError(err.code));
     setLoading('register', false);
   }
@@ -468,16 +475,30 @@ function hideAlert(alertId) { document.getElementById(alertId).classList.remove(
 
 function translateError(code) {
   const msgs = {
-    'auth/user-not-found': 'No existe una cuenta con este correo.',
-    'auth/wrong-password': 'Contraseña incorrecta.',
-    'auth/email-already-in-use': 'Este correo ya está registrado.',
-    'auth/invalid-email': 'El correo no es válido.',
-    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
-    'auth/too-many-requests': 'Demasiados intentos. Espera un momento.',
-    'auth/network-request-failed': 'Error de conexión. Verifica tu internet.',
-    'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+    // Auth
+    'auth/user-not-found':       'No existe una cuenta con este correo.',
+    'auth/wrong-password':       'Contraseña incorrecta.',
+    'auth/email-already-in-use': 'Este correo ya está registrado. Intenta iniciar sesión.',
+    'auth/invalid-email':        'El correo no es válido.',
+    'auth/weak-password':        'La contraseña debe tener al menos 6 caracteres.',
+    'auth/too-many-requests':    'Demasiados intentos. Espera unos minutos.',
+    'auth/network-request-failed':'Error de conexión. Verifica tu internet.',
+    'auth/invalid-credential':   'Correo o contraseña incorrectos.',
+    'auth/operation-not-allowed':'Método de registro no habilitado. Contacta al admin.',
+    'auth/missing-password':     'Falta la contraseña.',
+    'auth/missing-email':        'Falta el correo.',
+    'auth/internal-error':       'Error interno de Firebase. Intenta de nuevo.',
+    // Firestore
+    'permission-denied':         'Permisos insuficientes. Verifica que tu invitación esté activa o pide al admin que la cree.',
+    'unavailable':               'Firebase no responde. Verifica tu conexión.',
+    'unauthenticated':           'Sesión expirada. Vuelve a iniciar sesión.',
+    'failed-precondition':       'Base de datos no lista. Contacta al admin.',
+    'not-found':                 'Recurso no encontrado.',
+    'already-exists':            'Ya existe un registro con esos datos.'
   };
-  return msgs[code] || 'Ocurrió un error. Intenta de nuevo.';
+  if (msgs[code]) return msgs[code];
+  if (code) return 'Error: ' + code;   // Muestra el código real para diagnóstico
+  return 'Ocurrió un error inesperado.';
 }
 
 // Cerrar modal al hacer clic fuera

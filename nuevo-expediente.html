@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Nuevo Expediente · Reina María IPS</title>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="modulepreload" href="./js/empresas-helper.js">
+<link rel="modulepreload" href="./js/pacientes-helper.js">
+<link rel="modulepreload" href="./js/utils.js">
+<link rel="prefetch" href="expediente.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#1E6FB3;--blue-dark:#0E3D6E;--blue-xlight:#EAF3FB;--green:#4FB3A2;--green-dark:#2F8D7B;--green-soft:#E6F4F1;--yellow:#FFD600;--yellow-soft:#FFF8E1;--yellow-dark:#F9A825;--white:#FFFFFF;--gray-50:#F7FAFC;--gray-100:#EEF3F7;--gray-300:#CBD5E0;--gray-500:#6B7280;--gray-600:#4B5563;--text:#1A2233;--error:#DC2626;--shadow:0 4px 18px rgba(14,61,110,0.08);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--gray-50);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  a{color:inherit;}
+  header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:0.85rem 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+  header img{height:38px;width:auto;max-width:150px;object-fit:contain;background:white;padding:4px 8px;border-radius:8px;}
+  header .back{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;font-weight:500;}
+  header .back:hover{color:var(--yellow);}
+  main{max-width:820px;margin:0 auto;padding:1.5rem 5% 4rem;}
+  h1.title{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,1.9rem);color:var(--blue-dark);margin-bottom:0.3rem;}
+  .subtitle{color:var(--gray-600);font-size:0.92rem;margin-bottom:1.5rem;}
+
+  .stepper { display: flex; gap: 0.4rem; margin-bottom: 1.2rem; align-items: center; }
+  .stepper .step { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.85rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: var(--white); color: var(--gray-500); border: 1.5px solid var(--gray-100); }
+  .stepper .step.active { background: var(--blue); color: white; border-color: var(--blue); }
+  .stepper .step.done { background: var(--green-soft); color: var(--green-dark); border-color: var(--green); }
+  .stepper .step .num { background: var(--gray-100); color: var(--gray-600); width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem; }
+  .stepper .step.active .num { background: rgba(255,255,255,0.25); color: white; }
+  .stepper .step.done .num { background: var(--green); color: white; }
+  .stepper .sep { flex: 1; height: 2px; background: var(--gray-100); }
+
+  .step-page { display: none; }
+  .step-page.active { display: block; }
+
+  .section{background:var(--white);border-radius:16px;padding:1.4rem;box-shadow:var(--shadow);margin-bottom:1rem;border:1px solid var(--gray-100);}
+  .section h2{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue-dark);margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+  .section h2::before{content:'';width:5px;height:22px;background:var(--green);border-radius:3px;}
+  .section h3 { font-size: 0.78rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: 1.2px; margin: 1.1rem 0 0.55rem; font-weight: 700; }
+
+  .grid{display:grid;gap:0.75rem;grid-template-columns:1fr;}
+  @media(min-width:600px){.grid-2{grid-template-columns:1fr 1fr;}.grid-3{grid-template-columns:1fr 1fr 1fr;}}
+  label.field{display:block;}
+  label.field .lbl{display:block;font-size:0.74rem;font-weight:600;color:var(--blue-dark);margin-bottom:0.25rem;}
+  label.field input,label.field select{width:100%;padding:0.55rem 0.75rem;border:1.5px solid var(--gray-100);border-radius:8px;font-family:inherit;font-size:0.88rem;outline:none;background:var(--white);color:var(--text);}
+  label.field input:focus,label.field select:focus{border-color:var(--green);}
+  label.field input[readonly]{background:var(--gray-50);color:var(--gray-600);}
+
+  .paciente-card { background: var(--green-soft); border: 1.5px solid var(--green); border-radius: 12px; padding: 1rem; display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+  .paciente-card .foto { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background: var(--white); border: 2px solid var(--green); flex-shrink: 0; }
+  .paciente-card .foto.placeholder { display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--green-dark); }
+  .paciente-card .info { flex: 1; min-width: 0; }
+  .paciente-card .info h3 { font-size: 1.05rem; color: var(--green-dark); margin: 0 0 0.2rem; font-family: 'Playfair Display', serif; }
+  .paciente-card .info .meta { font-size: 0.8rem; color: var(--gray-600); }
+  .paciente-card .info .visitas { font-size: 0.75rem; color: var(--green-dark); margin-top: 0.3rem; }
+
+  .info-card{background:var(--yellow-soft);color:#8C6700;border:1px solid var(--yellow);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1.5rem;font-size:0.88rem;}
+
+  .actions{display:flex;gap:0.6rem;margin-top:1.5rem;justify-content:space-between;flex-wrap:wrap;}
+  .btn{border:none;cursor:pointer;padding:0.85rem 1.4rem;border-radius:10px;font-size:0.95rem;font-weight:700;font-family:inherit;}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;}
+  .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(30,111,179,0.35);}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--gray-600);border:1.5px solid var(--gray-100);}
+  .btn-success{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;}
+  .alert{padding:0.85rem 1rem;border-radius:10px;font-size:0.88rem;margin-bottom:1rem;display:none;}
+  .alert.show{display:block;}
+  .alert-error{background:#FEF2F2;color:var(--error);border:1px solid #FECACA;}
+  .alert-success{background:var(--green-soft);color:var(--green-dark);border:1px solid #BBF7D0;}
+  .alert-info{background:var(--blue-xlight);color:var(--blue-dark);border:1px solid #BBDEFB;}
+
+  .field-hint { font-size: 0.72rem; color: var(--gray-500); margin-top: 0.2rem; }
+  details.acordeon { background: var(--gray-50); border-radius: 10px; padding: 0.6rem 0.9rem; margin-bottom: 0.6rem; }
+  details.acordeon summary { cursor: pointer; font-weight: 600; color: var(--blue-dark); font-size: 0.88rem; }
+  details.acordeon[open] { background: var(--white); }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1 class="title">Nuevo Expediente</h1>
+  <p class="subtitle">Apertura de un folio nuevo. Primero identificamos al paciente; si ya existe se reusan sus datos.</p>
+
+  <nav class="stepper" aria-label="Pasos">
+    <div class="step active" id="stepBtn1"><span class="num">1</span>Identificar paciente</div>
+    <div class="sep"></div>
+    <div class="step" id="stepBtn2"><span class="num">2</span>Datos de la visita</div>
+  </nav>
+
+  <div id="alert" class="alert"></div>
+
+  <!-- ── PASO 1: identificar paciente ── -->
+  <div class="step-page active" id="step1">
+    <section class="section">
+      <h2>Identificación</h2>
+      <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:0.85rem">
+        Captura la cédula. Si el paciente ya estuvo antes, se cargan sus datos automáticamente.
+      </p>
+      <div class="grid grid-3">
+        <label class="field"><span class="lbl">Tipo de documento *</span>
+          <select id="tipo_documento" required>
+            <option value="CC">CC – Cédula de Ciudadanía</option>
+            <option value="TI">TI – Tarjeta de Identidad</option>
+            <option value="CE">CE – Cédula de Extranjería</option>
+            <option value="PA">PA – Pasaporte</option>
+            <option value="PT">PT – Permiso por Protección Temporal</option>
+            <option value="RC">RC – Registro Civil</option>
+          </select>
+        </label>
+        <label class="field" style="grid-column:span 2"><span class="lbl">Número de documento *</span>
+          <input type="text" id="numero_documento" required autocomplete="off" inputmode="numeric">
+        </label>
+      </div>
+      <div class="actions">
+        <span></span>
+        <button type="button" class="btn btn-primary" id="buscarBtn">🔎 Buscar paciente</button>
+      </div>
+    </section>
+
+    <div id="resultadoBusqueda" style="display:none"></div>
+  </div>
+
+  <!-- ── PASO 2: datos visita (+ datos paciente si es nuevo) ── -->
+  <div class="step-page" id="step2">
+
+    <div id="resumenPaciente" style="display:none"></div>
+
+    <section class="section" id="datosPacienteSection">
+      <h2 id="datosPacienteTitulo">Datos del paciente</h2>
+      <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:0.85rem" id="datosPacienteSubtitulo">
+        Captura los datos. Se guardarán como ficha maestra del paciente.
+      </p>
+      <div class="grid grid-2">
+        <label class="field"><span class="lbl">Nombres *</span><input type="text" id="nombres" required></label>
+        <label class="field"><span class="lbl">Apellidos *</span><input type="text" id="apellidos" required></label>
+        <label class="field"><span class="lbl">Fecha de nacimiento</span><input type="date" id="fecha_nacimiento"></label>
+        <label class="field"><span class="lbl">Edad</span><input type="number" id="edad" readonly></label>
+        <label class="field"><span class="lbl">Sexo</span>
+          <select id="sexo"><option value="">—</option><option value="M">Masculino</option><option value="F">Femenino</option></select>
+        </label>
+        <label class="field"><span class="lbl">Estado civil</span>
+          <select id="estado_civil">
+            <option value="">—</option><option value="S">Soltero/a</option><option value="C">Casado/a</option>
+            <option value="UL">Unión libre</option><option value="Sep">Separado/a</option><option value="V">Viudo/a</option>
+          </select>
+        </label>
+        <label class="field"><span class="lbl">Teléfono</span><input type="tel" id="telefono"></label>
+        <label class="field"><span class="lbl">Dirección</span><input type="text" id="direccion"></label>
+        <label class="field"><span class="lbl">Ciudad de residencia</span><input type="text" id="ciudad_residencia" list="lstCiudades" placeholder="Empieza a escribir..."></label>
+        <label class="field"><span class="lbl">Ciudad de nacimiento</span><input type="text" id="ciudad_nacimiento" list="lstCiudades"></label>
+        <label class="field"><span class="lbl">Ciudad de expedición</span><input type="text" id="ciudad_expedicion" list="lstCiudades"></label>
+        <label class="field"><span class="lbl">Escolaridad</span>
+          <select id="escolaridad">
+            <option value="">—</option><option value="basica">Básica</option><option value="media">Media</option>
+            <option value="tecnica">Técnica</option><option value="universidad">Universidad</option><option value="postgrado">Postgrado</option>
+          </select>
+        </label>
+        <label class="field"><span class="lbl">Profesión</span><input type="text" id="profesion"></label>
+        <label class="field"><span class="lbl">EPS</span><input type="text" id="eps"></label>
+        <label class="field"><span class="lbl">AFP</span><input type="text" id="afp"></label>
+        <label class="field"><span class="lbl">ARL</span><input type="text" id="arl"></label>
+      </div>
+
+      <h3>Foto del trabajador</h3>
+      <div id="hostFoto"></div>
+      <p class="field-hint">Aparecerá en la historia clínica y en el concepto de aptitud.</p>
+
+      <h3>Firma del trabajador</h3>
+      <div id="hostFirma"></div>
+      <p class="field-hint">Firma una sola vez aquí en recepción. Se reusa en todos los documentos.</p>
+    </section>
+
+    <section class="section">
+      <h2>Empresa y visita actual</h2>
+      <div class="grid grid-2">
+        <label class="field" style="grid-column:1/-1">
+          <span class="lbl">Empresa cliente *</span>
+          <input type="text" id="empresa_buscar" autocomplete="off" placeholder="Empieza a escribir... o elige PARTICULAR">
+          <span class="field-hint">¿No la encuentras? Agrégala en <a href="empresas.html" target="_blank">Empresas cliente</a> y vuelve.</span>
+        </label>
+        <label class="field"><span class="lbl">Cargo en la empresa</span><input type="text" id="cargo"></label>
+        <label class="field"><span class="lbl">Tipo de visita *</span>
+          <select id="tipo_visita">
+            <option value="ingreso">Ingreso</option>
+            <option value="periodico">Periódico</option>
+            <option value="egreso">Egreso</option>
+            <option value="reintegro">Reintegro</option>
+            <option value="post_incapacidad">Post-incapacidad</option>
+          </select>
+        </label>
+        <label class="field"><span class="lbl">Fecha de la visita *</span><input type="date" id="fecha_visita" required></label>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn btn-ghost" id="volverBtn">← Volver</button>
+      <button type="button" class="btn btn-success" id="abrirBtn">✓ Abrir expediente</button>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import {
+    firebaseConfig, ROLES, ESTADOS_EXPEDIENTE, EMPRESA_PARTICULAR,
+    TIPOS_DOCUMENTO, getNextFolio
+  } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+  import {
+    buscarPaciente, guardarPaciente, registrarVisita, pacienteId
+  } from './js/pacientes-helper.js';
+  import { conectarInputAEmpresas } from './js/empresas-helper.js';
+  import {
+    showAlert, conectarInputAciudades, vincularEdadAFechaNacimiento, isoHoy
+  } from './js/utils.js';
+  import { montarCapturaFoto } from './js/captura-foto.js';
+  import { montarCapturaFirma } from './js/captura-firma.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null, userData = {};
+  let pacienteActual = null;     // si ya existe en pacientes/
+  let empresaSeleccionada = null;
+  let captFoto = null, captFirma = null;
+
+  document.getElementById('fecha_visita').value = isoHoy();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userData = snap.exists() ? snap.data() : {};
+    if (![ROLES.SECRETARIA, ROLES.ADMIN].includes(userData.rol)) {
+      showAlert('error', 'No tienes permisos para abrir expedientes. Solo secretaría o admin.');
+      document.getElementById('buscarBtn').disabled = true;
+      return;
+    }
+    currentUser = user;
+    // Inicializar autocomplete de empresas y datalist de ciudades
+    conectarInputAciudades(document.getElementById('ciudad_residencia'), 'lstCiudades');
+    document.getElementById('ciudad_nacimiento').setAttribute('list', 'lstCiudades');
+    document.getElementById('ciudad_expedicion').setAttribute('list', 'lstCiudades');
+    await conectarInputAEmpresas(
+      document.getElementById('empresa_buscar'),
+      db,
+      { onSelect: (e) => { empresaSeleccionada = e; }, incluirParticular: true }
+    );
+    // Si llegamos con ?cedula= (desde pacientes.html), auto-buscar
+    const _url = new URL(window.location.href);
+    const _cedulaInit = _url.searchParams.get('cedula');
+    if (_cedulaInit) {
+      document.getElementById('numero_documento').value = _cedulaInit;
+      buscar();
+    }
+  });
+
+  // Edad calculada automáticamente
+  vincularEdadAFechaNacimiento('fecha_nacimiento', 'edad');
+
+  // ── Paso 1: buscar paciente ──
+  document.getElementById('buscarBtn').addEventListener('click', buscar);
+  document.getElementById('numero_documento').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') buscar();
+  });
+
+  async function buscar() {
+    if (!currentUser) return;
+    const cedula = document.getElementById('numero_documento').value.trim();
+    if (!cedula) { showAlert('error', 'Captura el número de documento.'); return; }
+
+    const btn = document.getElementById('buscarBtn');
+    btn.disabled = true; btn.textContent = 'Buscando…';
+    try {
+      const p = await buscarPaciente(db, cedula);
+      pacienteActual = p;
+      const resultado = document.getElementById('resultadoBusqueda');
+      if (p) {
+        const nombreCompleto = `${p.nombres || ''} ${p.apellidos || ''}`.trim() || '(sin nombre)';
+        resultado.innerHTML = `
+          <div class="paciente-card">
+            ${p.foto_url
+              ? `<img src="${p.foto_url}" class="foto" alt="Foto paciente">`
+              : `<div class="foto placeholder">👤</div>`}
+            <div class="info">
+              <h3>${escapeHtml(nombreCompleto)}</h3>
+              <div class="meta">${escapeHtml(p.tipo_documento || 'CC')} ${escapeHtml(p.numero_documento)} · ${escapeHtml(p.sexo || '—')}</div>
+              <div class="visitas">📋 ${p.visitas_count || 0} visita(s) previa(s)${p.ultima_visita_at ? ' — última: ' + formatTs(p.ultima_visita_at) : ''}</div>
+            </div>
+            <button class="btn btn-primary" id="continuarBtn">Crear nueva visita →</button>
+          </div>
+          <div class="info-card">
+            ℹ️ Sus datos personales (incluyendo foto y firma) se reusan automáticamente. Solo confirma los datos de la visita actual.
+          </div>
+        `;
+        document.getElementById('continuarBtn').addEventListener('click', () => irAPaso2(true));
+      } else {
+        resultado.innerHTML = `
+          <div class="info-card">
+            ℹ️ <strong>Paciente nuevo.</strong> No hay registros previos con esa cédula. Se creará una ficha maestra.
+          </div>
+          <div class="actions">
+            <span></span>
+            <button class="btn btn-primary" id="continuarBtn">Continuar →</button>
+          </div>
+        `;
+        document.getElementById('continuarBtn').addEventListener('click', () => irAPaso2(false));
+      }
+      resultado.style.display = '';
+    } catch (err) {
+      console.error(err);
+      showAlert('error', 'Error: ' + (err.message || err.code));
+    } finally {
+      btn.disabled = false; btn.textContent = '🔎 Buscar paciente';
+    }
+  }
+
+  function formatTs(ts) {
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('es-CO');
+    } catch (_) { return ''; }
+  }
+
+  // ── Paso 2: precargar datos + form ──
+  async function irAPaso2(esExistente) {
+    document.getElementById('stepBtn1').classList.remove('active');
+    document.getElementById('stepBtn1').classList.add('done');
+    document.getElementById('stepBtn2').classList.add('active');
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (esExistente && pacienteActual) {
+      // Resumen al inicio
+      document.getElementById('resumenPaciente').innerHTML = `
+        <div class="paciente-card">
+          ${pacienteActual.foto_url
+            ? `<img src="${pacienteActual.foto_url}" class="foto" alt="Foto">`
+            : `<div class="foto placeholder">👤</div>`}
+          <div class="info">
+            <h3>${escapeHtml((pacienteActual.nombres||'') + ' ' + (pacienteActual.apellidos||''))}</h3>
+            <div class="meta">${escapeHtml(pacienteActual.tipo_documento || 'CC')} ${escapeHtml(pacienteActual.numero_documento)}</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('resumenPaciente').style.display = '';
+
+      // El form de datos del paciente queda dentro de un <details> colapsado por defecto
+      const sec = document.getElementById('datosPacienteSection');
+      const titulo = document.getElementById('datosPacienteTitulo');
+      const subt = document.getElementById('datosPacienteSubtitulo');
+      titulo.textContent = '↻ Actualizar datos del paciente (opcional)';
+      subt.textContent = 'Los datos se autorrellenan; edítalos solo si hay cambios.';
+      // Hacemos colapsable
+      if (!sec.dataset.colapsado) {
+        sec.dataset.colapsado = 'true';
+        const ds = document.createElement('details');
+        ds.className = 'acordeon';
+        ds.innerHTML = `<summary>↻ Actualizar datos del paciente (clic para abrir)</summary>`;
+        sec.replaceWith(ds);
+        ds.appendChild(sec);
+      }
+
+      // Rellenar campos
+      ['nombres','apellidos','fecha_nacimiento','sexo','estado_civil','telefono','direccion','ciudad_residencia','ciudad_nacimiento','ciudad_expedicion','escolaridad','profesion','eps','afp','arl'].forEach(k => {
+        const el = document.getElementById(k); if (el) el.value = pacienteActual[k] || '';
+      });
+      document.getElementById('cargo').value = pacienteActual.cargo || '';
+      // Recalcular edad
+      const evt = new Event('input'); document.getElementById('fecha_nacimiento').dispatchEvent(evt);
+    } else {
+      // Es nuevo: form de paciente expandido
+      document.getElementById('resumenPaciente').style.display = 'none';
+    }
+
+    // Montar componentes de foto y firma (siempre, para permitir reemplazo)
+    captFoto = montarCapturaFoto(document.getElementById('hostFoto'), {
+      fotoExistenteUrl: pacienteActual?.foto_url || null
+    });
+    captFirma = await montarCapturaFirma(document.getElementById('hostFirma'), {
+      firmaExistenteUrl: pacienteActual?.firma_url || null
+    });
+  }
+
+  document.getElementById('volverBtn').addEventListener('click', () => {
+    document.getElementById('stepBtn1').classList.add('active');
+    document.getElementById('stepBtn1').classList.remove('done');
+    document.getElementById('stepBtn2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+    document.getElementById('step2').classList.remove('active');
+  });
+
+  // ── Abrir expediente ──
+  document.getElementById('abrirBtn').addEventListener('click', async () => {
+    if (!currentUser) return;
+    const nombres = document.getElementById('nombres').value.trim();
+    const apellidos = document.getElementById('apellidos').value.trim();
+    const cedula = document.getElementById('numero_documento').value.trim();
+    const fecha_visita = document.getElementById('fecha_visita').value;
+
+    if (!nombres || !apellidos || !cedula || !fecha_visita) {
+      showAlert('error', 'Faltan campos obligatorios (nombres, apellidos, fecha de visita).');
+      return;
+    }
+    if (!empresaSeleccionada) {
+      showAlert('error', 'Selecciona una empresa (o PARTICULAR para paciente independiente).');
+      return;
+    }
+
+    const btn = document.getElementById('abrirBtn');
+    btn.disabled = true; btn.textContent = 'Creando expediente…';
+    try {
+      // 1) Obtener blobs de foto/firma (si el usuario los puso)
+      const fotoBlob  = captFoto  ? await captFoto.getBlob()  : null;
+      const firmaBlob = captFirma ? await captFirma.getBlob() : null;
+
+      // 2) Crear o actualizar paciente (sube foto/firma si las hay)
+      const empresa_id = empresaSeleccionada.id;
+      const pacienteData = {
+        tipo_documento:    document.getElementById('tipo_documento').value,
+        nombres, apellidos,
+        fecha_nacimiento:  document.getElementById('fecha_nacimiento').value || null,
+        sexo:              document.getElementById('sexo').value || null,
+        estado_civil:      document.getElementById('estado_civil').value || '',
+        telefono:          document.getElementById('telefono').value.trim(),
+        direccion:         document.getElementById('direccion').value.trim(),
+        ciudad_residencia: document.getElementById('ciudad_residencia').value.trim(),
+        ciudad_nacimiento: document.getElementById('ciudad_nacimiento').value.trim(),
+        ciudad_expedicion: document.getElementById('ciudad_expedicion').value.trim(),
+        escolaridad:       document.getElementById('escolaridad').value || '',
+        profesion:         document.getElementById('profesion').value.trim(),
+        cargo:             document.getElementById('cargo').value.trim(),
+        eps:               document.getElementById('eps').value.trim(),
+        afp:               document.getElementById('afp').value.trim(),
+        arl:               document.getElementById('arl').value.trim(),
+        empresa_id_actual: empresa_id,
+        foto_url:          pacienteActual?.foto_url || null,
+        firma_url:         pacienteActual?.firma_url || null
+      };
+      const paciente = await guardarPaciente(db, app, cedula, pacienteData, {
+        foto:  fotoBlob,
+        firma: firmaBlob
+      });
+
+      // 3) Generar folio EXP y crear expediente
+      const folio = await getNextFolio(TIPOS_DOCUMENTO.EXPEDIENTE, db);
+      const expedienteData = {
+        folio,
+        paciente_id: paciente.id,
+        estado: ESTADOS_EXPEDIENTE.RECEPCION,
+        empresa_id,
+        empresa_nombre: empresaSeleccionada.razon_social || '',
+        tipo_visita: document.getElementById('tipo_visita').value,
+        fecha_visita: new Date(fecha_visita),
+        paciente_snapshot: {
+          tipo_documento:   paciente.tipo_documento,
+          numero_documento: paciente.numero_documento,
+          nombres:          paciente.nombres,
+          apellidos:        paciente.apellidos,
+          fecha_nacimiento: paciente.fecha_nacimiento,
+          sexo:             paciente.sexo,
+          telefono:         paciente.telefono,
+          cargo:            paciente.cargo,
+          empresa_nombre:   empresaSeleccionada.razon_social || '',
+          foto_url:         paciente.foto_url,
+          firma_url:        paciente.firma_url
+        },
+        examenes_estado: {
+          historia_clinica: 'pendiente',
+          audiometria:      'pendiente',
+          visiometria:      'pendiente',
+          optometria:       'pendiente',
+          concepto:         'pendiente'
+        },
+        documentos: {},
+        creado_por_uid: currentUser.uid,
+        creado_por_nombre: ((userData.nombres||'')+' '+(userData.apellidos||'')).trim(),
+        log_actividad: [{
+          uid: currentUser.uid,
+          accion: 'apertura',
+          timestamp: new Date().toISOString(),
+          nota: pacienteActual ? 'Nueva visita de paciente existente' : 'Nuevo paciente registrado'
+        }],
+        bloqueado: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(doc(db, 'expedientes', folio), expedienteData);
+
+      // 4) Registrar visita en el paciente maestro
+      await registrarVisita(db, paciente.id, folio);
+
+      showAlert('success', '✓ Expediente abierto: ' + folio + '. Redirigiendo…');
+      setTimeout(() => window.location.href = 'expediente.html?id=' + encodeURIComponent(folio), 1200);
+    } catch (err) {
+      console.error(err);
+      showAlert('error', 'Error: ' + (err.message || err.code));
+      btn.disabled = false; btn.textContent = '✓ Abrir expediente';
+    }
+  });
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  }
+</script>
+</body>
+</html>

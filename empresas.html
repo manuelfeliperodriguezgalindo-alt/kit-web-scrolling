@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Empresas cliente · Reina María IPS</title>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="modulepreload" href="./js/empresas-helper.js">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1E6FB3; --blue-dark: #0E3D6E; --blue-xlight: #EAF3FB;
+    --green: #4FB3A2; --green-dark: #2F8D7B; --green-soft: #E6F4F1;
+    --yellow: #FFD600; --yellow-soft: #FFF8E1; --yellow-dark: #F9A825;
+    --white: #FFFFFF; --gray-50: #F7FAFC; --gray-100: #EEF3F7;
+    --gray-300: #CBD5E0; --gray-500: #6B7280; --gray-600: #4B5563;
+    --text: #1A2233; --error: #DC2626;
+    --shadow: 0 4px 18px rgba(14,61,110,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); background: var(--gray-50); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+
+  header {
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+    padding: 0.85rem 5%; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); gap: 0.8rem;
+  }
+  header img { height: 38px; background: white; padding: 4px 8px; border-radius: 8px; }
+  header .back { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
+  header .back:hover { color: var(--yellow); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 5% 4rem; }
+  h1.title { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--blue-dark); margin-bottom: 0.3rem; }
+  .subtitle { color: var(--gray-600); font-size: 0.92rem; margin-bottom: 1.5rem; }
+
+  .toolbar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .toolbar input[type="search"] {
+    flex: 1; min-width: 220px; padding: 0.6rem 0.9rem;
+    border: 1.5px solid var(--gray-100); border-radius: 10px;
+    font-family: inherit; font-size: 0.92rem; outline: none; background: var(--white);
+  }
+  .toolbar input[type="search"]:focus { border-color: var(--green); }
+
+  .stats { display: flex; gap: 0.6rem; font-size: 0.82rem; color: var(--gray-600); margin-bottom: 1rem; }
+  .stats .pill { background: var(--blue-xlight); color: var(--blue-dark); padding: 0.3rem 0.7rem; border-radius: 50px; font-weight: 600; }
+
+  table.lista {
+    width: 100%; border-collapse: collapse; background: var(--white);
+    border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  table.lista th, table.lista td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--gray-100); font-size: 0.88rem; }
+  table.lista th { background: var(--blue-xlight); color: var(--blue-dark); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; }
+  table.lista tr:last-child td { border-bottom: none; }
+  table.lista tr:hover { background: var(--gray-50); }
+  table.lista td.acts { text-align: right; white-space: nowrap; }
+
+  .id-mono { font-family: ui-monospace, monospace; font-size: 0.78rem; color: var(--gray-600); }
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--gray-500); }
+
+  .btn { border: none; cursor: pointer; padding: 0.55rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; font-family: inherit; transition: all 0.15s; }
+  .btn-primary { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color: white; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(30,111,179,0.3); }
+  .btn-ghost { background: transparent; color: var(--gray-600); border: 1.5px solid var(--gray-100); }
+  .btn-ghost:hover { background: var(--gray-50); }
+  .btn-danger { background: #FEE2E2; color: var(--error); }
+  .btn-danger:hover { background: var(--error); color: white; }
+
+  /* Modal */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(14,61,110,0.55); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center; padding: 1rem;
+    z-index: 200;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 16px; max-width: 600px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;
+  }
+  .modal-header { padding: 1.2rem 1.4rem; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center; }
+  .modal-header h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--blue-dark); }
+  .modal-header .close { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--gray-500); }
+  .modal-body { padding: 1.4rem; }
+  .modal-footer { padding: 1rem 1.4rem; border-top: 1px solid var(--gray-100); display: flex; justify-content: flex-end; gap: 0.5rem; }
+
+  .grid { display: grid; gap: 0.75rem; grid-template-columns: 1fr; }
+  @media (min-width: 600px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  label.field { display: block; }
+  label.field .lbl { display: block; font-size: 0.74rem; font-weight: 600; color: var(--blue-dark); margin-bottom: 0.25rem; }
+  label.field input, label.field select {
+    width: 100%; padding: 0.55rem 0.75rem; border: 1.5px solid var(--gray-100);
+    border-radius: 8px; font-family: inherit; font-size: 0.88rem; outline: none;
+    background: var(--white); color: var(--text);
+  }
+  label.field input:focus, label.field select:focus { border-color: var(--green); }
+  .field-hint { font-size: 0.72rem; color: var(--gray-500); margin-top: 0.25rem; }
+
+  .alert { padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.88rem; margin-bottom: 1rem; display: none; }
+  .alert.show { display: block; }
+  .alert-error { background: #FEF2F2; color: var(--error); border: 1px solid #FECACA; }
+  .alert-success { background: var(--green-soft); color: var(--green-dark); border: 1px solid #BBF7D0; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1 class="title">Empresas cliente</h1>
+  <p class="subtitle">Banco de empresas con las que la IPS tiene convenio. Se usan al abrir expedientes para asociar al paciente.</p>
+
+  <div id="alert" class="alert"></div>
+
+  <div class="toolbar">
+    <input type="search" id="buscar" placeholder="Buscar por razón social, NIT o actividad…" autocomplete="off">
+    <button class="btn btn-primary" id="nuevoBtn">+ Nueva empresa</button>
+  </div>
+
+  <div class="stats">
+    <span class="pill">Total: <span id="statTotal">0</span></span>
+    <span class="pill">Mostrando: <span id="statMostrando">0</span></span>
+  </div>
+
+  <div id="contenedor"></div>
+</main>
+
+<!-- Modal de creación/edición -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2 id="modalTitle">Nueva empresa</h2>
+      <button class="close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="formEmpresa">
+        <input type="hidden" id="empresa_id">
+        <div class="grid grid-2">
+          <label class="field">
+            <span class="lbl">Razón social *</span>
+            <input type="text" id="razon_social" required>
+          </label>
+          <label class="field">
+            <span class="lbl">NIT *</span>
+            <input type="text" id="nit" required placeholder="900123456-7">
+            <span class="field-hint">Con dígito de verificación si lo tiene.</span>
+          </label>
+          <label class="field">
+            <span class="lbl">Actividad económica</span>
+            <input type="text" id="actividad_economica" placeholder="Ej. Construcción, Logística…">
+          </label>
+          <label class="field">
+            <span class="lbl">Código CIIU</span>
+            <input type="text" id="codigo_ciiu" placeholder="Opcional">
+          </label>
+          <label class="field">
+            <span class="lbl">Dirección</span>
+            <input type="text" id="direccion">
+          </label>
+          <label class="field">
+            <span class="lbl">Ciudad</span>
+            <input type="text" id="ciudad" list="lstCiudadesEmp">
+          </label>
+          <label class="field">
+            <span class="lbl">Departamento</span>
+            <input type="text" id="departamento">
+          </label>
+          <label class="field">
+            <span class="lbl">Teléfono</span>
+            <input type="tel" id="telefono">
+          </label>
+          <label class="field" style="grid-column: 1/-1">
+            <span class="lbl">Correo de contacto del coordinador SST</span>
+            <input type="email" id="email_contacto" placeholder="coordinador@empresa.com">
+            <span class="field-hint">Será el usuario al que la empresa asocie su login (rol empresa).</span>
+          </label>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
+      <button class="btn btn-primary" id="modalSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+  import { listarEmpresas, filtrarEmpresas, guardarEmpresa, eliminarEmpresa } from './js/empresas-helper.js';
+  import { conectarInputAciudades, showAlert } from './js/utils.js';
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null;
+  let userData = {};
+  let empresas = [];
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userData = snap.exists() ? snap.data() : {};
+    if (![ROLES.SECRETARIA, ROLES.ADMIN, ROLES.MEDICO].includes(userData.rol)) {
+      showAlert('error', 'No tienes permisos para administrar empresas.');
+      document.getElementById('nuevoBtn').disabled = true;
+      return;
+    }
+    currentUser = user;
+    await cargar();
+    await conectarInputAciudades(document.getElementById('ciudad'), 'lstCiudadesEmp');
+  });
+
+  async function cargar() {
+    try {
+      empresas = await listarEmpresas(db, { force: true });
+      render();
+    } catch (err) {
+      showAlert('error', 'No se pudieron cargar las empresas: ' + (err.message || err.code));
+    }
+  }
+
+  function render() {
+    const q = document.getElementById('buscar').value;
+    const filtradas = filtrarEmpresas(empresas, q);
+    document.getElementById('statTotal').textContent = empresas.length;
+    document.getElementById('statMostrando').textContent = filtradas.length;
+    const cont = document.getElementById('contenedor');
+    if (filtradas.length === 0) {
+      cont.innerHTML = `<div class="empty">${empresas.length === 0 ? 'Aún no hay empresas registradas. Crea la primera con "+ Nueva empresa".' : 'No hay coincidencias para tu búsqueda.'}</div>`;
+      return;
+    }
+    cont.innerHTML = `
+      <table class="lista">
+        <thead><tr>
+          <th>Razón social</th><th>NIT</th><th>Actividad</th><th>Ciudad</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    `;
+    const tb = cont.querySelector('tbody');
+    filtradas.forEach(e => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div style="font-weight:600;color:var(--blue-dark)">${escapeHtml(e.razon_social || '—')}</div>
+          <div class="id-mono">${escapeHtml(e.id)}</div>
+        </td>
+        <td>${escapeHtml(e.nit || '—')}</td>
+        <td>${escapeHtml(e.actividad_economica || '—')}</td>
+        <td>${escapeHtml(e.ciudad || '—')}</td>
+        <td class="acts">
+          <button class="btn btn-ghost" data-edit="${e.id}">Editar</button>
+          <button class="btn btn-danger" data-del="${e.id}">Eliminar</button>
+        </td>
+      `;
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => abrirEditar(b.dataset.edit)));
+    tb.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => confirmarBorrar(b.dataset.del)));
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  }
+
+  document.getElementById('buscar').addEventListener('input', render);
+
+  // ── Modal ──
+  function abrirModal(empresa = null) {
+    document.getElementById('modalTitle').textContent = empresa ? 'Editar empresa' : 'Nueva empresa';
+    document.getElementById('empresa_id').value = empresa?.id || '';
+    ['razon_social','nit','actividad_economica','codigo_ciiu','direccion','ciudad','departamento','telefono','email_contacto'].forEach(k => {
+      document.getElementById(k).value = empresa?.[k] || '';
+    });
+    document.getElementById('modalBg').classList.add('show');
+    document.getElementById('razon_social').focus();
+  }
+  function cerrarModal() { document.getElementById('modalBg').classList.remove('show'); }
+
+  document.getElementById('nuevoBtn').addEventListener('click', () => abrirModal(null));
+  document.getElementById('modalClose').addEventListener('click', cerrarModal);
+  document.getElementById('modalCancel').addEventListener('click', cerrarModal);
+  document.getElementById('modalBg').addEventListener('click', (e) => { if (e.target.id === 'modalBg') cerrarModal(); });
+
+  function abrirEditar(id) {
+    const e = empresas.find(x => x.id === id); if (e) abrirModal(e);
+  }
+
+  document.getElementById('modalSave').addEventListener('click', async () => {
+    const data = {
+      id:                  document.getElementById('empresa_id').value || null,
+      razon_social:        document.getElementById('razon_social').value.trim(),
+      nit:                 document.getElementById('nit').value.trim(),
+      actividad_economica: document.getElementById('actividad_economica').value.trim(),
+      codigo_ciiu:         document.getElementById('codigo_ciiu').value.trim(),
+      direccion:           document.getElementById('direccion').value.trim(),
+      ciudad:              document.getElementById('ciudad').value.trim(),
+      departamento:        document.getElementById('departamento').value.trim(),
+      telefono:            document.getElementById('telefono').value.trim(),
+      email_contacto:      document.getElementById('email_contacto').value.trim().toLowerCase()
+    };
+    if (!data.razon_social || !data.nit) {
+      showAlert('error', 'Razón social y NIT son obligatorios.');
+      return;
+    }
+    const btn = document.getElementById('modalSave');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    try {
+      // Si es nueva: el ID legible se deriva del NIT (más estable que el nombre)
+      const idSugerido = data.id || (data.nit ? data.nit.replace(/[^0-9A-Za-z-]/g, '') : null);
+      await guardarEmpresa(db, data, { idSugerido });
+      cerrarModal();
+      await cargar();
+      showAlert('success', '✓ Empresa guardada.');
+    } catch (err) {
+      showAlert('error', 'Error: ' + (err.message || err.code));
+    } finally {
+      btn.disabled = false; btn.textContent = 'Guardar';
+    }
+  });
+
+  async function confirmarBorrar(id) {
+    const e = empresas.find(x => x.id === id);
+    if (!e) return;
+    if (!confirm(`¿Eliminar la empresa "${e.razon_social}"?\n\nSus expedientes existentes no se borran, pero ya no aparecerá en el banco.`)) return;
+    try {
+      await eliminarEmpresa(db, id);
+      await cargar();
+      showAlert('success', '✓ Empresa eliminada.');
+    } catch (err) {
+      showAlert('error', 'No se pudo eliminar: ' + (err.message || err.code));
+    }
+  }
+</script>
+</body>
+</html>

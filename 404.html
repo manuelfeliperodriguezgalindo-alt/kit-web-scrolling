@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="/assets/logo-cuadrado.png">
+<title>Página no encontrada · Reina María IPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --blue:#1E6FB3; --blue-dark:#0E3D6E; --green:#4FB3A2; --yellow:#FFD600; --gray-50:#F7FAFC; --gray-600:#4B5563; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #EAF3FB 0%, #F7FAFC 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    color: #1A2233;
+  }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(14,61,110,0.12);
+  }
+  .logo { height: 60px; margin: 0 auto 1.5rem; display: block; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--blue-dark);
+    line-height: 1;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--blue-dark);
+    margin-bottom: 0.8rem;
+  }
+  p { color: var(--gray-600); margin-bottom: 1.8rem; line-height: 1.6; font-size: 0.95rem; }
+  .btns { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.4rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.18s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color: white; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,111,179,0.35); }
+  .btn-ghost { background: transparent; color: var(--gray-600); border: 1.5px solid #EEF3F7; }
+  .btn-ghost:hover { background: var(--gray-50); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img src="/assets/logo-cuadrado.png" alt="Reina María IPS" class="logo" onerror="this.style.display='none'">
+    <h1>404</h1>
+    <h2>Página no encontrada</h2>
+    <p>La página que buscas no existe o fue movida. Si llegaste aquí desde un enlace en nuestro sitio, agradecemos avisarnos.</p>
+    <div class="btns">
+      <a class="btn btn-primary" href="/">← Volver al inicio</a>
+      <a class="btn btn-ghost" href="/portal">Iniciar sesión</a>
+    </div>
+  </div>
+</body>
+</html>

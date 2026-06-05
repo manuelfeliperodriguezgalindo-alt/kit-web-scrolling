@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Bloquear áreas privadas (portal, dashboards, formularios clínicos, expedientes)
+Disallow: /portal.html
+Disallow: /cuenta-pendiente.html
+Disallow: /dashboard-paciente.html
+Disallow: /dashboard-empleado.html
+Disallow: /dashboard-empresa.html
+Disallow: /nuevo-expediente.html
+Disallow: /expediente.html
+Disallow: /nueva-historia-clinica.html
+Disallow: /nuevo-concepto-aptitud.html
+Disallow: /audiometria.html
+Disallow: /visiometria.html
+Disallow: /optometria.html
+Disallow: /usuarios.html
+Disallow: /invitaciones.html
+Disallow: /js/
+Disallow: /firestore.rules
+Disallow: /storage.rules
+Disallow: /netlify.toml
+
+# Sitemap
+Sitemap: https://reinamariaips.com/sitemap.xml

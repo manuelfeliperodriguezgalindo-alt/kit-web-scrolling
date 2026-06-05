@@ -1,0 +1,29 @@
+# ── Sistema operativo ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editores ──
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/
+
+# ── Netlify (local dev) ──
+.netlify/
+
+# ── Node (por si añades build futuro) ──
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# ── Documentación interna (no se sirve) ──
+INSTRUCCIONES.md
+CLAUDE.md
+js/firebase-setup.md
+
+# ── Formatos físicos del cliente (datos reales de pacientes — NO publicar) ──
+FORMATOS HC SOFTWARE/
+*.docx
+*.xlsx

@@ -1,0 +1,80 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Reina María IPS · Cloud Storage Security Rules (v5 — Blaze activo)
+// ─────────────────────────────────────────────────────────────────────────
+// Estructura de carpetas:
+//   /pacientes/{cedula}/foto.jpg           → foto identificación (capturada en recepción)
+//   /pacientes/{cedula}/firma.png          → firma del trabajador (capturada en recepción)
+//   /firmas-medicos/{uid}.png              → firma reusable del médico
+//   /cap-pdfs/{folio}.pdf                  → PDF firmado del Concepto de Aptitud
+//   /adjuntos/{folio}/{file=**}            → exámenes externos (lab tercerizado)
+// ─────────────────────────────────────────────────────────────────────────
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helpers
+    function isAuth() { return request.auth != null; }
+    function userData() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
+    }
+    function userRol() { return userData().rol; }
+    function userEmpresaAdminId() { return userData().empresa_admin_de; }
+    function isStaff() { return isAuth() && userRol() in ['secretaria', 'medico', 'admin']; }
+    function isMedicoOrAdmin() { return isAuth() && userRol() in ['medico', 'admin']; }
+    function isEmpresa() { return isAuth() && userRol() == 'empresa'; }
+
+    function isImage()  { return request.resource.contentType.matches('image/.*'); }
+    function isPdf()    { return request.resource.contentType == 'application/pdf'; }
+
+    // ── Pacientes: foto y firma capturadas en recepción ─────────────────
+    // Solo staff puede ver/escribir. Las empresas NO acceden directamente
+    // a estas imágenes (privacidad — solo ven el PDF del CAP donde aparecen).
+    match /pacientes/{cedula}/{file=**} {
+      allow read:  if isStaff();
+      allow write: if isStaff()
+                   && request.resource.size < 5 * 1024 * 1024
+                   && isImage();
+      allow delete: if isMedicoOrAdmin();
+    }
+
+    // ── Firmas reusables de médicos ─────────────────────────────────────
+    // Cada médico sube su propia firma (uid). Staff puede leerlas todas
+    // (necesario para que la secretaria genere PDFs con la firma del médico).
+    match /firmas-medicos/{userFile} {
+      allow read:  if isStaff();
+      allow write: if isAuth()
+                   && (userFile.matches(request.auth.uid + '\\..*') || isMedicoOrAdmin())
+                   && request.resource.size < 2 * 1024 * 1024
+                   && isImage();
+    }
+
+    // ── PDFs del Concepto de Aptitud ────────────────────────────────────
+    // Lectura: staff siempre; empresa SOLO si el concepto pertenece a su empresa.
+    // Esto permite que el PDF persista incluso después de cerrar el expediente.
+    match /cap-pdfs/{folio} {
+      allow read: if isStaff() || (
+        isEmpresa()
+        && firestore.exists(/databases/(default)/documents/conceptos_aptitud/$(folio.split('\\.')[0]))
+        && firestore.get(/databases/(default)/documents/conceptos_aptitud/$(folio.split('\\.')[0])).data.empresa_id == userEmpresaAdminId()
+        && firestore.get(/databases/(default)/documents/conceptos_aptitud/$(folio.split('\\.')[0])).data.empresa_id != 'PARTICULAR'
+      );
+      allow write:  if isStaff()
+                    && request.resource.size < 10 * 1024 * 1024
+                    && isPdf();
+      allow delete: if isMedicoOrAdmin();
+    }
+
+    // ── Adjuntos (exámenes tercerizados) ────────────────────────────────
+    match /adjuntos/{folio}/{file=**} {
+      allow read:  if isStaff();
+      allow write: if isStaff()
+                   && request.resource.size < 10 * 1024 * 1024
+                   && (isPdf() || isImage());
+      allow delete: if isMedicoOrAdmin();
+    }
+
+    // Denegar todo lo demás
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}

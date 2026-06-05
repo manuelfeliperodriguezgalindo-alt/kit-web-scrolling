@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Pacientes · Reina María IPS</title>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="prefetch" href="nuevo-expediente.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--blue:#1E6FB3;--blue-dark:#0E3D6E;--blue-xlight:#EAF3FB;--green:#4FB3A2;--green-dark:#2F8D7B;--green-soft:#E6F4F1;--yellow:#FFD600;--yellow-soft:#FFF8E1;--yellow-dark:#F9A825;--white:#FFFFFF;--gray-50:#F7FAFC;--gray-100:#EEF3F7;--gray-300:#CBD5E0;--gray-500:#6B7280;--gray-600:#4B5563;--text:#1A2233;--error:#DC2626;--shadow:0 4px 18px rgba(14,61,110,0.08);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--gray-50);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  a{color:inherit;}
+  header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:0.85rem 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+  header img{height:38px;background:white;padding:4px 8px;border-radius:8px;}
+  header .back{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;font-weight:500;}
+  header .back:hover{color:var(--yellow);}
+  main{max-width:1100px;margin:0 auto;padding:1.5rem 5% 4rem;}
+  h1.title{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,1.9rem);color:var(--blue-dark);margin-bottom:0.3rem;}
+  .subtitle{color:var(--gray-600);font-size:0.92rem;margin-bottom:1.5rem;}
+  .toolbar{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;}
+  .toolbar input[type="search"]{flex:1;min-width:220px;padding:0.6rem 0.9rem;border:1.5px solid var(--gray-100);border-radius:10px;font-family:inherit;font-size:0.92rem;outline:none;background:var(--white);}
+  .toolbar input[type="search"]:focus{border-color:var(--green);}
+  .stats{display:flex;gap:0.6rem;font-size:0.82rem;color:var(--gray-600);margin-bottom:1rem;}
+  .stats .pill{background:var(--blue-xlight);color:var(--blue-dark);padding:0.3rem 0.7rem;border-radius:50px;font-weight:600;}
+  .grid-cards{display:grid;gap:0.85rem;grid-template-columns:1fr;}
+  @media(min-width:600px){.grid-cards{grid-template-columns:1fr 1fr;}}
+  @media(min-width:960px){.grid-cards{grid-template-columns:1fr 1fr 1fr;}}
+  .card{background:var(--white);border-radius:14px;padding:0.9rem 1rem;box-shadow:var(--shadow);border:1px solid var(--gray-100);display:flex;gap:0.85rem;align-items:center;cursor:pointer;transition:transform 0.15s;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,61,110,0.12);}
+  .card .foto{width:54px;height:54px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--gray-500);overflow:hidden;flex-shrink:0;}
+  .card .foto img{width:100%;height:100%;object-fit:cover;}
+  .card .info{flex:1;min-width:0;}
+  .card .info h3{font-size:0.95rem;color:var(--blue-dark);font-family:'Playfair Display',serif;margin:0 0 0.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card .info .meta{font-size:0.78rem;color:var(--gray-600);}
+  .card .info .visitas{font-size:0.72rem;color:var(--green-dark);margin-top:0.25rem;}
+  .empty{text-align:center;padding:3rem 1rem;color:var(--gray-500);}
+  .btn{border:none;cursor:pointer;padding:0.55rem 1rem;border-radius:8px;font-size:0.82rem;font-weight:700;font-family:inherit;}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:white;}
+  .btn-ghost{background:transparent;color:var(--gray-600);border:1.5px solid var(--gray-100);}
+
+  /* Modal ficha paciente */
+  .modal-bg{position:fixed;inset:0;background:rgba(14,61,110,0.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1rem;z-index:200;}
+  .modal-bg.show{display:flex;}
+  .modal{background:var(--white);border-radius:16px;max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto;}
+  .modal-header{padding:1.2rem 1.4rem;border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between;align-items:center;}
+  .modal-header h2{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--blue-dark);}
+  .modal-header .close{background:none;border:none;cursor:pointer;font-size:1.5rem;color:var(--gray-500);}
+  .modal-body{padding:1.4rem;}
+  .modal-footer{padding:1rem 1.4rem;border-top:1px solid var(--gray-100);display:flex;justify-content:flex-end;gap:0.5rem;flex-wrap:wrap;}
+  .modal-foto-grande{width:120px;height:120px;border-radius:50%;background:var(--gray-100);margin:0 auto 0.8rem;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--gray-500);overflow:hidden;}
+  .modal-foto-grande img{width:100%;height:100%;object-fit:cover;}
+  .ficha-row{display:grid;grid-template-columns:140px 1fr;gap:0.5rem;padding:0.4rem 0;border-bottom:1px dashed var(--gray-100);font-size:0.85rem;}
+  .ficha-row:last-child{border-bottom:none;}
+  .ficha-row .k{color:var(--gray-600);font-weight:600;}
+  .alert{padding:0.85rem 1rem;border-radius:10px;font-size:0.88rem;margin-bottom:1rem;display:none;}
+  .alert.show{display:block;}
+  .alert-error{background:#FEF2F2;color:var(--error);border:1px solid #FECACA;}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="assets/logo.png" alt="Reina María IPS" onerror="this.style.display='none'">
+  <a class="back" href="dashboard-empleado.html">← Volver al panel</a>
+</header>
+
+<main>
+  <h1 class="title">Pacientes</h1>
+  <p class="subtitle">Banco maestro de pacientes. Aquí puedes ver historial completo y crear una nueva visita ("reingreso") con datos precargados.</p>
+
+  <div id="alert" class="alert"></div>
+
+  <div class="toolbar">
+    <input type="search" id="buscar" placeholder="Buscar por nombre, cédula, empresa…" autocomplete="off">
+    <a class="btn btn-primary" href="nuevo-expediente.html">+ Nuevo expediente</a>
+  </div>
+
+  <div class="stats">
+    <span class="pill">Total: <span id="statTotal">0</span></span>
+    <span class="pill">Mostrando: <span id="statMostrando">0</span></span>
+  </div>
+
+  <div id="contenedor" class="grid-cards"></div>
+</main>
+
+<!-- Modal ficha -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2 id="modalTitle">Ficha del paciente</h2>
+      <button class="close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="modalCancel">Cerrar</button>
+      <button class="btn btn-primary" id="reingresoBtn">🔄 Reingreso (nueva visita)</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+  import { listarExpedientesDePaciente } from './js/pacientes-helper.js';
+  import { showAlert, calcularEdad, formatoFechaEs } from './js/utils.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let pacientes = [];
+  let userData = {};
+  let pacienteSeleccionado = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    userData = snap.exists() ? snap.data() : {};
+    if (![ROLES.SECRETARIA, ROLES.MEDICO, ROLES.ADMIN].includes(userData.rol)) {
+      showAlert('error', 'No tienes permisos para ver pacientes.');
+      return;
+    }
+    await cargar();
+  });
+
+  async function cargar() {
+    try {
+      const q = query(collection(db, 'pacientes'), orderBy('updatedAt', 'desc'), limit(300));
+      const snap = await getDocs(q);
+      pacientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    } catch (err) {
+      showAlert('error', 'No se pudieron cargar los pacientes: ' + (err.message || err.code));
+    }
+  }
+
+  function render() {
+    const q = document.getElementById('buscar').value.trim().toLowerCase();
+    const filtrados = !q ? pacientes : pacientes.filter(p =>
+      [p.nombres, p.apellidos, p.numero_documento, p.empresa_id_actual, p.cargo]
+        .filter(Boolean).some(s => String(s).toLowerCase().includes(q))
+    );
+    document.getElementById('statTotal').textContent = pacientes.length;
+    document.getElementById('statMostrando').textContent = filtrados.length;
+    const cont = document.getElementById('contenedor');
+    if (filtrados.length === 0) {
+      cont.innerHTML = `<div class="empty" style="grid-column:1/-1">${pacientes.length === 0 ? 'Aún no hay pacientes. Crea el primero desde "Nuevo expediente".' : 'No hay coincidencias.'}</div>`;
+      return;
+    }
+    cont.innerHTML = '';
+    filtrados.forEach(p => {
+      const c = document.createElement('div');
+      c.className = 'card';
+      const edad = p.fecha_nacimiento ? calcularEdad(p.fecha_nacimiento) : null;
+      c.innerHTML = `
+        <div class="foto">
+          ${p.foto_url ? `<img src="${p.foto_url}" alt="Foto">` : '👤'}
+        </div>
+        <div class="info">
+          <h3>${escapeHtml(((p.nombres||'') + ' ' + (p.apellidos||'')).trim() || '(sin nombre)')}</h3>
+          <div class="meta">${escapeHtml(p.tipo_documento || 'CC')} ${escapeHtml(p.numero_documento || '')}${edad ? ' · ' + edad + ' años' : ''}</div>
+          <div class="visitas">📋 ${p.visitas_count || 0} visita(s)</div>
+        </div>
+      `;
+      c.addEventListener('click', () => abrirFicha(p));
+      cont.appendChild(c);
+    });
+  }
+
+  document.getElementById('buscar').addEventListener('input', render);
+
+  async function abrirFicha(p) {
+    pacienteSeleccionado = p;
+    const nombre = ((p.nombres||'') + ' ' + (p.apellidos||'')).trim();
+    document.getElementById('modalTitle').textContent = nombre || 'Ficha del paciente';
+    const edad = p.fecha_nacimiento ? calcularEdad(p.fecha_nacimiento) : null;
+    const body = document.getElementById('modalBody');
+    body.innerHTML = `
+      <div class="modal-foto-grande">${p.foto_url ? `<img src="${p.foto_url}" alt="Foto">` : '👤'}</div>
+      ${row('Documento', `${escapeHtml(p.tipo_documento || 'CC')} ${escapeHtml(p.numero_documento || '')}`)}
+      ${row('Edad', edad != null ? edad + ' años' : '—')}
+      ${row('Sexo', p.sexo || '—')}
+      ${row('Fecha de nacimiento', p.fecha_nacimiento || '—')}
+      ${row('Teléfono', p.telefono || '—')}
+      ${row('Dirección', p.direccion || '—')}
+      ${row('Ciudad de residencia', p.ciudad_residencia || '—')}
+      ${row('EPS / AFP / ARL', [p.eps, p.afp, p.arl].filter(Boolean).join(' / ') || '—')}
+      ${row('Cargo', p.cargo || '—')}
+      ${row('Empresa actual', p.empresa_id_actual || '—')}
+      ${row('Última visita', p.ultima_visita_at ? formatoFechaEs(p.ultima_visita_at.toDate ? p.ultima_visita_at.toDate() : p.ultima_visita_at) : '—')}
+      <h3 style="margin:1rem 0 0.6rem;font-family:'Playfair Display',serif;color:var(--blue-dark);font-size:1rem">Visitas previas</h3>
+      <div id="visitasList">Cargando…</div>
+    `;
+    document.getElementById('modalBg').classList.add('show');
+    // Cargar visitas
+    try {
+      const visitas = await listarExpedientesDePaciente(db, p.id);
+      const list = document.getElementById('visitasList');
+      if (visitas.length === 0) {
+        list.innerHTML = '<div style="color:var(--gray-500);font-size:0.85rem">Sin visitas registradas aún.</div>';
+      } else {
+        list.innerHTML = visitas.map(v => `
+          <a href="expediente.html?id=${encodeURIComponent(v.id)}" style="display:block;padding:0.5rem 0.7rem;border-radius:8px;background:var(--gray-50);margin-bottom:0.4rem;text-decoration:none;color:var(--text);font-size:0.84rem">
+            <strong style="color:var(--blue-dark)">${escapeHtml(v.id)}</strong> ·
+            ${escapeHtml(v.tipo_visita || '—')} ·
+            <span style="color:var(--gray-600)">${v.fecha_visita ? new Date(v.fecha_visita.toDate ? v.fecha_visita.toDate() : v.fecha_visita).toLocaleDateString('es-CO') : '—'}</span>
+            · ${escapeHtml(v.estado || '—')}
+          </a>
+        `).join('');
+      }
+    } catch (err) {
+      document.getElementById('visitasList').innerHTML = '<div style="color:var(--error);font-size:0.82rem">No se pudieron cargar las visitas.</div>';
+    }
+  }
+
+  function row(k, v) {
+    return `<div class="ficha-row"><div class="k">${escapeHtml(k)}</div><div>${typeof v === 'string' ? escapeHtml(v) : v}</div></div>`;
+  }
+
+  function cerrarModal() { document.getElementById('modalBg').classList.remove('show'); }
+  document.getElementById('modalClose').addEventListener('click', cerrarModal);
+  document.getElementById('modalCancel').addEventListener('click', cerrarModal);
+  document.getElementById('modalBg').addEventListener('click', (e) => { if (e.target.id === 'modalBg') cerrarModal(); });
+
+  document.getElementById('reingresoBtn').addEventListener('click', () => {
+    if (!pacienteSeleccionado) return;
+    if (![ROLES.SECRETARIA, ROLES.ADMIN].includes(userData.rol)) {
+      showAlert('error', 'Solo la secretaría o admin pueden abrir expedientes.');
+      return;
+    }
+    // Llevar al paciente preseleccionado al flujo de nuevo expediente
+    window.location.href = 'nuevo-expediente.html?cedula=' + encodeURIComponent(pacienteSeleccionado.id);
+  });
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  }
+</script>
+</body>
+</html>

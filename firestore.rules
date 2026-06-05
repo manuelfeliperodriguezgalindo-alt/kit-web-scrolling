@@ -1,0 +1,176 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Reina María IPS · Firestore Security Rules (v5 — Storage activo)
+// ─────────────────────────────────────────────────────────────────────────
+// Cambios v5 respecto a v4:
+//   • Plan Blaze activado → Cloud Storage en uso.
+//   • Colección `pacientes/{cedula}` ahora es ENTIDAD MAESTRA (no snapshot).
+//   • Expedientes referencian al paciente por `paciente_id` (= cédula).
+//   • Snapshot mínimo se sigue guardando en el expediente al CERRARLO (valor legal).
+//   • CAP guarda `pdf_url` cuando se genera el PDF (lectura por empresa propietaria).
+// ─────────────────────────────────────────────────────────────────────────
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──
+    function isAuth() { return request.auth != null; }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function userRol() { return userDoc().rol; }
+    function userEmpresaAdminId() { return userDoc().empresa_admin_de; }
+
+    function isAdmin()      { return isAuth() && userRol() == 'admin'; }
+    function isMedico()     { return isAuth() && userRol() == 'medico'; }
+    function isSecretaria() { return isAuth() && userRol() == 'secretaria'; }
+    function isEmpresa()    { return isAuth() && userRol() == 'empresa'; }
+    function isStaff()      { return isMedico() || isSecretaria() || isAdmin(); }
+
+    function expedienteAbierto(expedienteId) {
+      return get(/databases/$(database)/documents/expedientes/$(expedienteId)).data.estado != 'cerrado';
+    }
+
+    // ─── /users/{uid} ───────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isAuth() && (request.auth.uid == userId || isStaff());
+
+      allow create: if isAuth()
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.rol == 'pendiente';
+
+      // El propio usuario NO puede cambiar su rol ni uid.
+      // El médico puede actualizar su firma_url y datos profesionales.
+      allow update: if isAuth() && (
+        (
+          request.auth.uid == userId
+          && request.resource.data.rol == resource.data.rol
+          && request.resource.data.uid == resource.data.uid
+        )
+        || isAdmin()
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── /empresas/{empresa_id} ─────────────────────────────────────────
+    match /empresas/{empresaId} {
+      allow read: if isAuth() && (
+        isStaff()
+        || (isEmpresa() && userEmpresaAdminId() == empresaId)
+      );
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // ─── /pacientes/{cedula} ────────────────────────────────────────────
+    // Entidad maestra. La lectura solo es para staff (privacidad).
+    // Las empresas NUNCA leen pacientes directamente — solo conceptos.
+    match /pacientes/{pacienteId} {
+      allow read:   if isStaff();
+      allow create: if isStaff();
+      allow update: if isStaff();
+      allow delete: if isAdmin();
+
+      // Subcolección de visitas (denormalización opcional para listas rápidas)
+      match /visitas/{visitaId} {
+        allow read, write: if isStaff();
+      }
+    }
+
+    // ─── /expedientes/{expediente_id} ───────────────────────────────────
+    match /expedientes/{expedienteId} {
+      allow read: if isAuth() && (
+        isStaff()
+        || (isEmpresa()
+            && resource.data.empresa_id == userEmpresaAdminId()
+            && resource.data.empresa_id != 'PARTICULAR'
+            && resource.data.estado == 'cerrado')
+      );
+      allow create: if isAuth() && (isSecretaria() || isAdmin())
+        && request.resource.data.estado == 'recepcion';
+      allow update: if isAuth() && (
+        (resource.data.estado == 'cerrado' && (isMedico() || isAdmin()))
+        || (resource.data.estado != 'cerrado' && isStaff())
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ─── Documentos clínicos ─────────────────────────────────────────────
+    match /historias_clinicas/{folio} {
+      allow read: if isStaff();
+      allow create: if isStaff() && expedienteAbierto(request.resource.data.expediente_id);
+      allow update: if isStaff() && expedienteAbierto(resource.data.expediente_id);
+      allow delete: if isAdmin();
+    }
+
+    match /audiometrias/{folio} {
+      allow read: if isStaff();
+      allow create: if isStaff() && expedienteAbierto(request.resource.data.expediente_id);
+      allow update: if isStaff() && expedienteAbierto(resource.data.expediente_id);
+      allow delete: if isAdmin();
+    }
+
+    match /visiometrias/{folio} {
+      allow read: if isStaff();
+      allow create: if isStaff() && expedienteAbierto(request.resource.data.expediente_id);
+      allow update: if isStaff() && expedienteAbierto(resource.data.expediente_id);
+      allow delete: if isAdmin();
+    }
+
+    match /optometrias/{folio} {
+      allow read: if isStaff();
+      allow create: if isStaff() && expedienteAbierto(request.resource.data.expediente_id);
+      allow update: if isStaff() && expedienteAbierto(resource.data.expediente_id);
+      allow delete: if isAdmin();
+    }
+
+    // ─── /conceptos_aptitud/{folio} ─────────────────────────────────────
+    // Único doc clínico que las empresas pueden leer
+    match /conceptos_aptitud/{folio} {
+      allow read: if isAuth() && (
+        isStaff()
+        || (isEmpresa()
+            && resource.data.empresa_id == userEmpresaAdminId()
+            && resource.data.empresa_id != 'PARTICULAR')
+      );
+      allow create: if isStaff() && expedienteAbierto(request.resource.data.expediente_id);
+      // Update: incluso si el expediente está cerrado, permitimos escribir el pdf_url
+      // generado al cerrar (médico/admin podrán regenerar el PDF).
+      allow update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    // ─── /adjuntos/{folio} ──────────────────────────────────────────────
+    match /adjuntos/{folio} {
+      allow read: if isStaff();
+      allow create: if isStaff() && expedienteAbierto(request.resource.data.expediente_id);
+      allow update: if isStaff() && expedienteAbierto(resource.data.expediente_id);
+      allow delete: if isAdmin();
+    }
+
+    // ─── /counters/{TIPO_YYYYMM} ────────────────────────────────────────
+    match /counters/{counterId} {
+      allow read, write: if isStaff();
+    }
+
+    // ─── /catalogos/{coleccion}/{document=**} ───────────────────────────
+    match /catalogos/{coleccion}/{document=**} {
+      allow read:  if isStaff() || isEmpresa();
+      allow write: if isAdmin();
+    }
+
+    // ─── /config/{docId} ────────────────────────────────────────────────
+    match /config/{docId} {
+      allow read:  if isStaff();
+      allow write: if isAdmin();
+    }
+
+    // ─── Por defecto: denegar ───────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

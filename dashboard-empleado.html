@@ -3,6 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<link rel="apple-touch-icon" href="assets/logo-cuadrado.png">
+
+<!-- ── Optimización 2: Precarga del SDK Firebase (paralelo al HTML) ── -->
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="modulepreload" href="./js/firebase-config.js">
+<link rel="modulepreload" href="./js/auth-helper.js">
+<link rel="modulepreload" href="./js/email-gate.js">
+
+<!-- ── Optimización 3: Prefetch de páginas que probablemente visitará ── -->
+<link rel="prefetch" href="nuevo-expediente.html">
+<link rel="prefetch" href="audiometria.html">
+<link rel="prefetch" href="visiometria.html">
+<link rel="prefetch" href="optometria.html">
+<link rel="prefetch" href="nueva-historia-clinica.html">
+<link rel="prefetch" href="nuevo-concepto-aptitud.html">
+<link rel="prefetch" href="expediente.html">
+<link rel="prefetch" href="usuarios.html">
 <title>Panel Empleado – Reina María IPS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -149,15 +170,22 @@
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">Principal</div>
-    <button class="nav-item active" onclick="showView('inicio')"><span class="nav-icon">📊</span>Dashboard</button>
-    <button class="nav-item" onclick="showView('agenda')"><span class="nav-icon">📅</span>Agenda del día</button>
-    <div class="nav-section">Pacientes</div>
-    <button class="nav-item" onclick="showView('citas')"><span class="nav-icon">📋</span>Gestión de citas</button>
-    <button class="nav-item" onclick="showView('pacientes')"><span class="nav-icon">👥</span>Pacientes</button>
-    <button class="nav-item" onclick="showView('autorizaciones')"><span class="nav-icon">✅</span>Autorizaciones</button>
+    <button class="nav-item active" onclick="showView('inicio')"><span class="nav-icon">📊</span>Inicio</button>
+    <button class="nav-item" onclick="showView('expedientes')"><span class="nav-icon">📂</span>Expedientes</button>
+    <div class="nav-section">Gestión</div>
+    <button class="nav-item" onclick="window.location.href='pacientes.html'"><span class="nav-icon">🧑‍⚕️</span>Pacientes</button>
+    <button class="nav-item" onclick="window.location.href='empresas.html'"><span class="nav-icon">🏢</span>Empresas</button>
+    <div class="nav-section">Crear documento</div>
+    <button class="nav-item" onclick="window.location.href='nuevo-expediente.html'"><span class="nav-icon">➕</span>Nuevo expediente</button>
+    <button class="nav-item" onclick="window.location.href='nueva-historia-clinica.html'"><span class="nav-icon">📝</span>Historia clínica</button>
+    <button class="nav-item" onclick="window.location.href='audiometria.html'"><span class="nav-icon">👂</span>Audiometría</button>
+    <button class="nav-item" onclick="window.location.href='visiometria.html'"><span class="nav-icon">👁️</span>Visiometría</button>
+    <button class="nav-item" onclick="window.location.href='optometria.html'"><span class="nav-icon">🔍</span>Optometría</button>
+    <button class="nav-item" onclick="window.location.href='nuevo-concepto-aptitud.html'"><span class="nav-icon">📄</span>Concepto de aptitud</button>
     <div class="nav-section">Administración</div>
-    <button class="nav-item" onclick="showView('reportes')"><span class="nav-icon">📈</span>Reportes</button>
-    <button class="nav-item" onclick="showView('perfil')"><span class="nav-icon">👤</span>Mi Perfil</button>
+    <button class="nav-item" id="navUsuarios" onclick="window.location.href='usuarios.html'" style="display:none"><span class="nav-icon">👥</span>Usuarios <span id="navUsuariosBadge" style="display:none;background:#FFD600;color:#0E3D6E;font-size:0.7rem;padding:1px 7px;border-radius:50px;margin-left:6px;font-weight:700"></span></button>
+    <button class="nav-item" id="navPerfilMedico" onclick="window.location.href='perfil-medico.html'" style="display:none"><span class="nav-icon">✍️</span>Mi firma médica</button>
+    <button class="nav-item" onclick="showView('perfil')"><span class="nav-icon">👤</span>Mi perfil</button>
   </nav>
   <div class="sidebar-bottom">
     <button class="logout-btn" onclick="handleLogout()">🚪 Cerrar sesión</button>
@@ -172,163 +200,53 @@
       <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
     </div>
     <div class="topbar-right">
-      <span class="topbar-badge">👨‍⚕️ Empleado</span>
+      <span class="topbar-badge" id="rolBadge">👨‍⚕️ Personal</span>
     </div>
   </div>
 
   <div class="page-content">
 
-    <!-- DASHBOARD -->
+    <!-- INICIO -->
     <div class="view active" id="view-inicio">
-      <div class="info-box">📊 Panel de gestión de <strong>Reina María IPS</strong>. Aquí tienes el resumen del día y acceso rápido a todas las herramientas.</div>
-      <div class="cards-grid">
-        <div class="stat-card blue"><div class="stat-card-icon">📅</div><div class="stat-card-value">12</div><div class="stat-card-label">Citas hoy</div></div>
-        <div class="stat-card green"><div class="stat-card-icon">✅</div><div class="stat-card-value">7</div><div class="stat-card-label">Atendidas hoy</div></div>
-        <div class="stat-card yellow"><div class="stat-card-icon">⏳</div><div class="stat-card-value">5</div><div class="stat-card-label">Pendientes hoy</div></div>
-        <div class="stat-card orange"><div class="stat-card-icon">🔔</div><div class="stat-card-value">3</div><div class="stat-card-label">Autorizaciones pendientes</div></div>
+      <div class="info-box">📊 Panel de gestión de <strong>Reina María IPS</strong>. Acceso rápido a las herramientas clínicas.</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem">
+        <a href="nuevo-expediente.html" style="display:flex;align-items:center;gap:0.85rem;padding:1.1rem 1.2rem;border-radius:14px;text-decoration:none;background:linear-gradient(135deg,#0E3D6E,#1E6FB3);color:white;box-shadow:0 6px 20px rgba(14,61,110,0.18);transition:transform 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          <span style="font-size:1.7rem">➕</span>
+          <div><div style="font-weight:700;font-size:0.95rem">Nuevo expediente</div><div style="font-size:0.78rem;opacity:0.85">Abrir folio para una visita</div></div>
+        </a>
+        <button onclick="showView('expedientes')" style="display:flex;align-items:center;gap:0.85rem;padding:1.1rem 1.2rem;border-radius:14px;border:1.5px dashed #CBD5E0;background:white;color:#0E3D6E;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;transition:transform 0.2s,border-color 0.2s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='#1E6FB3'" onmouseout="this.style.transform='';this.style.borderColor='#CBD5E0'">
+          <span style="font-size:1.7rem">📂</span>
+          <div><div style="font-weight:700;font-size:0.95rem">Ver expedientes</div><div style="font-size:0.78rem;color:#6B7280">Folios abiertos por estado</div></div>
+        </button>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
-        <div class="box">
-          <div class="box-header"><span class="box-title">Próximas citas hoy</span><a class="box-action" onclick="showView('agenda')">Ver agenda →</a></div>
-          <div class="agenda-item"><div class="agenda-time">08:00</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Medicina General · Consultorio 1</div></div><span class="badge badge-green">Listo</span></div>
-          <div class="agenda-item"><div class="agenda-time">09:30</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Cardiología · Consultorio 3</div></div><span class="badge badge-blue">En espera</span></div>
-          <div class="agenda-item"><div class="agenda-time">10:00</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Laboratorio · Sala lab.</div></div><span class="badge badge-orange">Pendiente</span></div>
-          <div class="agenda-item"><div class="agenda-time">11:30</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Pediatría · Consultorio 2</div></div><span class="badge badge-orange">Pendiente</span></div>
+      <div class="box">
+        <div class="box-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.6rem">
+          <span class="box-title">Expedientes recientes</span>
+          <button onclick="showView('expedientes')" style="background:transparent;color:var(--blue);border:none;cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:600">Ver todos →</button>
         </div>
-        <div class="box">
-          <div class="box-header"><span class="box-title">Autorizaciones recientes</span><a class="box-action" onclick="showView('autorizaciones')">Ver todas →</a></div>
-          <div class="table-wrap"><table>
-            <thead><tr><th>Paciente</th><th>Procedimiento</th><th>Estado</th></tr></thead>
-            <tbody>
-              <tr><td>[Nombre]</td><td>Resonancia magnética</td><td><span class="badge badge-orange">Pendiente</span></td></tr>
-              <tr><td>[Nombre]</td><td>Medicamento X</td><td><span class="badge badge-green">Aprobada</span></td></tr>
-              <tr><td>[Nombre]</td><td>Terapia física</td><td><span class="badge badge-green">Aprobada</span></td></tr>
-            </tbody>
-          </table></div>
-        </div>
+        <div id="expedientesRecientes" style="padding:1rem;text-align:center;color:#6B7280;font-size:0.88rem">Cargando...</div>
       </div>
     </div>
 
-    <!-- AGENDA -->
-    <div class="view" id="view-agenda">
+    <!-- EXPEDIENTES (lista completa) -->
+    <div class="view" id="view-expedientes">
       <div class="box">
-        <div class="box-header">
-          <span class="box-title">Agenda del día — <span id="todayDate"></span></span>
-          <div style="display:flex;gap:0.5rem">
-            <input type="date" id="agendaDate" style="padding:0.4rem 0.8rem;border:1.5px solid #E2E8F0;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.85rem;outline:none" onchange="">
+        <div class="box-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.6rem">
+          <span class="box-title">Expedientes</span>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <select id="filterEstado" style="padding:0.45rem 0.75rem;border:1.5px solid #E2E8F0;border-radius:8px;font-family:inherit;font-size:0.84rem;outline:none">
+              <option value="">Todos los estados</option>
+              <option value="recepcion">Recepción</option>
+              <option value="examenes">Exámenes</option>
+              <option value="revision">Revisión</option>
+              <option value="cerrado">Cerrado</option>
+            </select>
+            <button onclick="window.location.href='nuevo-expediente.html'" class="btn-blue" style="margin:0;padding:0.5rem 1rem;font-size:0.85rem">+ Nuevo</button>
           </div>
         </div>
-        <div id="agendaList">
-          <div class="agenda-item"><div class="agenda-time">07:00</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Medicina General · Consultorio 1</div></div><div style="display:flex;gap:6px"><button class="btn-sm btn-sm-green">Atendido</button><button class="btn-sm btn-sm-red">Cancelar</button></div></div>
-          <div class="agenda-item"><div class="agenda-time">08:00</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Pediatría · Consultorio 2</div></div><div style="display:flex;gap:6px"><button class="btn-sm btn-sm-green">Atendido</button><button class="btn-sm btn-sm-red">Cancelar</button></div></div>
-          <div class="agenda-item"><div class="agenda-time">09:00</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Cardiología · Consultorio 3</div></div><div style="display:flex;gap:6px"><button class="btn-sm btn-sm-blue">En consulta</button><button class="btn-sm btn-sm-red">Cancelar</button></div></div>
-          <div class="agenda-item"><div class="agenda-time">10:30</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Laboratorio · Sala lab.</div></div><div style="display:flex;gap:6px"><button class="btn-sm btn-sm-green">Atendido</button><button class="btn-sm btn-sm-red">Cancelar</button></div></div>
-          <div class="agenda-item"><div class="agenda-time">11:00</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Ginecología · Consultorio 4</div></div><div style="display:flex;gap:6px"><button class="btn-sm btn-sm-green">Atendido</button><button class="btn-sm btn-sm-red">Cancelar</button></div></div>
-          <div class="agenda-item"><div class="agenda-time">14:00</div><div class="agenda-info"><div class="agenda-name">Paciente [Nombre]</div><div class="agenda-detail">Odontología · Consultorio 5</div></div><div style="display:flex;gap:6px"><button class="btn-sm btn-sm-green">Atendido</button><button class="btn-sm btn-sm-red">Cancelar</button></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- GESTIÓN DE CITAS -->
-    <div class="view" id="view-citas">
-      <div class="box">
-        <div class="box-header"><span class="box-title">Gestión de citas</span></div>
-        <div style="display:flex;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap">
-          <div class="search-wrap" style="margin-bottom:0"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar por paciente o documento..."></div>
-          <select style="padding:0.7rem 1rem;border:1.5px solid #E2E8F0;border-radius:10px;font-family:'Inter',sans-serif;font-size:0.87rem;outline:none">
-            <option>Todos los estados</option><option>Confirmada</option><option>Pendiente</option><option>Completada</option><option>Cancelada</option>
-          </select>
-          <select style="padding:0.7rem 1rem;border:1.5px solid #E2E8F0;border-radius:10px;font-family:'Inter',sans-serif;font-size:0.87rem;outline:none">
-            <option>Todas las especialidades</option><option>Medicina General</option><option>Cardiología</option><option>Pediatría</option><option>Ginecología</option><option>Laboratorio</option>
-          </select>
-        </div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Paciente</th><th>Cédula</th><th>Especialidad</th><th>Fecha y hora</th><th>Médico</th><th>Estado</th><th>Acciones</th></tr></thead>
-          <tbody>
-            <tr><td>[Nombre paciente]</td><td>[Cédula]</td><td>Medicina General</td><td>[Fecha] 07:00</td><td>Dr. [Nombre]</td><td><span class="badge badge-green">Completada</span></td><td><button class="btn-sm btn-sm-blue">Ver</button></td></tr>
-            <tr><td>[Nombre paciente]</td><td>[Cédula]</td><td>Cardiología</td><td>[Fecha] 09:00</td><td>Dr. [Nombre]</td><td><span class="badge badge-blue">Confirmada</span></td><td><div style="display:flex;gap:4px"><button class="btn-sm btn-sm-green">Atender</button><button class="btn-sm btn-sm-red">Cancelar</button></div></td></tr>
-            <tr><td>[Nombre paciente]</td><td>[Cédula]</td><td>Pediatría</td><td>[Fecha] 10:00</td><td>Dr. [Nombre]</td><td><span class="badge badge-orange">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn-sm btn-sm-blue">Confirmar</button><button class="btn-sm btn-sm-red">Cancelar</button></div></td></tr>
-            <tr><td>[Nombre paciente]</td><td>[Cédula]</td><td>Laboratorio</td><td>[Fecha] 11:00</td><td>—</td><td><span class="badge badge-orange">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn-sm btn-sm-blue">Confirmar</button><button class="btn-sm btn-sm-red">Cancelar</button></div></td></tr>
-            <tr><td>[Nombre paciente]</td><td>[Cédula]</td><td>Ginecología</td><td>[Fecha] 14:00</td><td>Dr. [Nombre]</td><td><span class="badge badge-red">Cancelada</span></td><td><button class="btn-sm btn-sm-blue">Ver</button></td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- PACIENTES -->
-    <div class="view" id="view-pacientes">
-      <div class="box">
-        <div class="box-header"><span class="box-title">Pacientes registrados</span></div>
-        <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar por nombre o cédula..."></div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Nombre completo</th><th>Cédula</th><th>EPS</th><th>Teléfono</th><th>Última visita</th><th>Acción</th></tr></thead>
-          <tbody>
-            <tr><td>[Nombre Apellido]</td><td>[Cédula]</td><td>[EPS]</td><td>[Teléfono]</td><td>[Fecha]</td><td><button class="btn-sm btn-sm-blue">Ver historial</button></td></tr>
-            <tr><td>[Nombre Apellido]</td><td>[Cédula]</td><td>[EPS]</td><td>[Teléfono]</td><td>[Fecha]</td><td><button class="btn-sm btn-sm-blue">Ver historial</button></td></tr>
-            <tr><td>[Nombre Apellido]</td><td>[Cédula]</td><td>[EPS]</td><td>[Teléfono]</td><td>[Fecha]</td><td><button class="btn-sm btn-sm-blue">Ver historial</button></td></tr>
-            <tr><td>[Nombre Apellido]</td><td>[Cédula]</td><td>[EPS]</td><td>[Teléfono]</td><td>[Fecha]</td><td><button class="btn-sm btn-sm-blue">Ver historial</button></td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- AUTORIZACIONES -->
-    <div class="view" id="view-autorizaciones">
-      <div class="box">
-        <div class="box-header"><span class="box-title">Gestión de autorizaciones</span></div>
-        <div class="info-box">Revisa y gestiona las solicitudes de autorización de procedimientos y medicamentos enviadas por los pacientes.</div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Paciente</th><th>Cédula</th><th>Procedimiento / Medicamento</th><th>EPS</th><th>Fecha solicitud</th><th>Estado</th><th>Acciones</th></tr></thead>
-          <tbody>
-            <tr><td>[Nombre]</td><td>[Cédula]</td><td>Resonancia magnética cerebral</td><td>[EPS]</td><td>[Fecha]</td><td><span class="badge badge-orange">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn-sm btn-sm-green" onclick="approveBadge(this)">Aprobar</button><button class="btn-sm btn-sm-red">Rechazar</button></div></td></tr>
-            <tr><td>[Nombre]</td><td>[Cédula]</td><td>Terapia física – 10 sesiones</td><td>[EPS]</td><td>[Fecha]</td><td><span class="badge badge-orange">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn-sm btn-sm-green" onclick="approveBadge(this)">Aprobar</button><button class="btn-sm btn-sm-red">Rechazar</button></div></td></tr>
-            <tr><td>[Nombre]</td><td>[Cédula]</td><td>Medicamento [Nombre]</td><td>[EPS]</td><td>[Fecha]</td><td><span class="badge badge-green">Aprobada</span></td><td>—</td></tr>
-            <tr><td>[Nombre]</td><td>[Cédula]</td><td>Cirugía ambulatoria [Procedimiento]</td><td>[EPS]</td><td>[Fecha]</td><td><span class="badge badge-orange">Pendiente</span></td><td><div style="display:flex;gap:4px"><button class="btn-sm btn-sm-green" onclick="approveBadge(this)">Aprobar</button><button class="btn-sm btn-sm-red">Rechazar</button></div></td></tr>
-          </tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- REPORTES -->
-    <div class="view" id="view-reportes">
-      <div class="cards-grid">
-        <div class="stat-card blue"><div class="stat-card-icon">📅</div><div class="stat-card-value">248</div><div class="stat-card-label">Citas este mes</div></div>
-        <div class="stat-card green"><div class="stat-card-icon">👥</div><div class="stat-card-value">186</div><div class="stat-card-label">Pacientes atendidos</div></div>
-        <div class="stat-card yellow"><div class="stat-card-icon">✅</div><div class="stat-card-value">94%</div><div class="stat-card-label">Tasa de asistencia</div></div>
-        <div class="stat-card orange"><div class="stat-card-icon">⏱️</div><div class="stat-card-value">18 min</div><div class="stat-card-label">Tiempo prom. espera</div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
-        <div class="box">
-          <div class="box-header"><span class="box-title">Citas por especialidad</span></div>
-          <div style="display:flex;flex-direction:column;gap:0.8rem">
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem">
-              <span>Medicina General</span><div style="display:flex;align-items:center;gap:0.8rem"><div style="height:6px;width:120px;background:#E2E8F0;border-radius:3px"><div style="height:100%;width:85%;background:var(--blue);border-radius:3px"></div></div><span style="font-weight:700;color:var(--blue)">85</span></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem">
-              <span>Cardiología</span><div style="display:flex;align-items:center;gap:0.8rem"><div style="height:6px;width:120px;background:#E2E8F0;border-radius:3px"><div style="height:100%;width:45%;background:var(--blue);border-radius:3px"></div></div><span style="font-weight:700;color:var(--blue)">45</span></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem">
-              <span>Pediatría</span><div style="display:flex;align-items:center;gap:0.8rem"><div style="height:6px;width:120px;background:#E2E8F0;border-radius:3px"><div style="height:100%;width:38%;background:var(--blue);border-radius:3px"></div></div><span style="font-weight:700;color:var(--blue)">38</span></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem">
-              <span>Ginecología</span><div style="display:flex;align-items:center;gap:0.8rem"><div style="height:6px;width:120px;background:#E2E8F0;border-radius:3px"><div style="height:100%;width:30%;background:var(--blue);border-radius:3px"></div></div><span style="font-weight:700;color:var(--blue)">30</span></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem">
-              <span>Laboratorio</span><div style="display:flex;align-items:center;gap:0.8rem"><div style="height:6px;width:120px;background:#E2E8F0;border-radius:3px"><div style="height:100%;width:25%;background:var(--yellow-dark);border-radius:3px"></div></div><span style="font-weight:700;color:var(--yellow-dark)">50</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="box">
-          <div class="box-header"><span class="box-title">Exportar reportes</span></div>
-          <div style="display:flex;flex-direction:column;gap:0.8rem">
-            <button class="btn-blue" style="margin:0;text-align:left;padding:0.75rem 1rem">📊 Reporte mensual de citas (PDF)</button>
-            <button class="btn-blue" style="margin:0;text-align:left;padding:0.75rem 1rem">👥 Listado de pacientes (Excel)</button>
-            <button class="btn-blue" style="margin:0;text-align:left;padding:0.75rem 1rem">✅ Reporte de autorizaciones (PDF)</button>
-            <button class="btn-blue" style="margin:0;text-align:left;padding:0.75rem 1rem">📈 Estadísticas de atención (PDF)</button>
-          </div>
-          <p style="font-size:0.78rem;color:var(--gray-400);margin-top:1rem">Los reportes se generan con los datos reales del sistema de Reina María IPS.</p>
-        </div>
+        <div id="expedientesList" style="padding:1rem;text-align:center;color:#6B7280;font-size:0.88rem">Cargando...</div>
       </div>
     </div>
 
@@ -362,16 +280,10 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-  const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROYECTO.firebaseapp.com",
-    projectId: "TU_PROYECTO",
-    storageBucket: "TU_PROYECTO.appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
-  };
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, where, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES, ESTADOS_EXPEDIENTE } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+  import { getUserData, clearCachedUser } from './js/auth-helper.js';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -379,40 +291,147 @@
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = 'portal.html'; return; }
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    const data = userDoc.exists() ? userDoc.data() : {};
-    if (data.role === 'paciente') { window.location.href = 'dashboard-paciente.html'; return; }
-    const nombre = data.nombre || user.displayName || 'Empleado';
-    const apellido = data.apellido || '';
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    // Cache-first: lee del cache local (instantáneo) y refresca en background
+    const { data } = await getUserData(db, user.uid);
+    // Si rol es "pendiente" → pantalla de cuenta pendiente
+    if (!data.rol || data.rol === ROLES.PENDIENTE) {
+      window.location.href = 'cuenta-pendiente.html';
+      return;
+    }
+    // Roles permitidos aquí: secretaria, medico, admin.
+    // El rol "empresa" tiene su propio dashboard, lo redirigimos.
+    if (data.rol === ROLES.EMPRESA) {
+      window.location.href = 'dashboard-empresa.html';
+      return;
+    }
+    // Mostrar rol real en el badge superior
+    const badgeMap = {
+      [ROLES.SECRETARIA]: '🗂️ Secretaría',
+      [ROLES.MEDICO]:     '👨‍⚕️ Médico',
+      [ROLES.ADMIN]:      '🛡️ Administrador'
+    };
+    const badge = document.getElementById('rolBadge');
+    if (badge && badgeMap[data.rol]) badge.textContent = badgeMap[data.rol];
+
+    // Mostrar acceso a "Usuarios" solo para admin
+    if (data.rol === ROLES.ADMIN) {
+      const navUsr = document.getElementById('navUsuarios');
+      if (navUsr) navUsr.style.display = '';
+      // Cargar contador de pendientes
+      cargarPendientes();
+    }
+
+    // Mostrar "Mi firma médica" solo para médico/admin
+    if (data.rol === ROLES.MEDICO || data.rol === ROLES.ADMIN) {
+      const navFm = document.getElementById('navPerfilMedico');
+      if (navFm) navFm.style.display = '';
+    }
+
+    // Cargar expedientes recientes y todos
+    cargarExpedientes();
+
+    const nombre = data.nombres || data.nombre || user.displayName || 'Personal';
+    const apellido = data.apellidos || data.apellido || '';
     const fullName = (nombre + ' ' + apellido).trim();
     const initials = (nombre[0] || '') + (apellido[0] || '');
     document.getElementById('sidebarName').textContent = fullName;
     document.getElementById('sidebarAvatar').textContent = initials.toUpperCase() || '👨‍⚕️';
     document.getElementById('profileName').textContent = fullName;
     document.getElementById('profileAvatarBig').textContent = initials.toUpperCase() || '👨‍⚕️';
-    if (data.nombre) document.getElementById('p-nombre').value = data.nombre;
-    if (data.apellido) document.getElementById('p-apellido').value = data.apellido;
-    if (data.cargo) document.getElementById('p-cargo').value = data.cargo;
-    if (data.cedula) document.getElementById('p-cedula').value = data.cedula;
+    document.getElementById('p-nombre').value   = nombre;
+    document.getElementById('p-apellido').value = apellido;
+    if (data.cargo || data.cargo_en_empresa) document.getElementById('p-cargo').value = data.cargo || data.cargo_en_empresa;
+    if (data.numero_documento || data.cedula) document.getElementById('p-cedula').value = data.numero_documento || data.cedula;
     if (data.email) document.getElementById('p-email').value = data.email;
     if (data.telefono) document.getElementById('p-tel').value = data.telefono;
     window._currentUser = user;
+    window._currentRol  = data.rol || ROLES.MEDICO;
     window._db = db;
     window._doc = doc;
     window._setDoc = setDoc;
+    window._serverTimestamp = serverTimestamp;
   });
 
   window._auth = auth;
   window._signOut = signOut;
+
+  // ── Cargar lista de expedientes ──
+  async function cargarExpedientes() {
+    try {
+      const snap = await getDocs(query(collection(db, 'expedientes'), orderBy('createdAt', 'desc'), limit(50)));
+      const arr = [];
+      snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+      window._allExpedientes = arr;
+      renderExpedientes(arr.slice(0, 5), 'expedientesRecientes');
+      renderExpedientes(arr, 'expedientesList');
+    } catch (err) {
+      console.error(err);
+      const msg = '⚠️ Error al cargar expedientes: ' + (err.message || err.code);
+      document.getElementById('expedientesRecientes').textContent = msg;
+      document.getElementById('expedientesList').textContent = msg;
+    }
+  }
+  window.cargarExpedientes = cargarExpedientes;
+
+  function renderExpedientes(list, containerId) {
+    const cont = document.getElementById(containerId);
+    if (!cont) return;
+    if (!list || !list.length) {
+      cont.innerHTML = '<div style="padding:1.5rem;text-align:center;color:#6B7280"><div style="font-size:2.5rem;margin-bottom:0.4rem">📂</div><strong>No hay expedientes registrados</strong><br><small>Abre el primero con el botón "+ Nuevo expediente"</small></div>';
+      return;
+    }
+    const estPill = (e) => {
+      const c = { recepcion:'#EAF3FB|#0E3D6E', examenes:'#FFF8E1|#F9A825', revision:'#FCE7F3|#831843', cerrado:'#E6F4F1|#2F8D7B' }[e] || '#EEF3F7|#6B7280';
+      const [bg, fg] = c.split('|');
+      return `<span style="display:inline-block;padding:2px 10px;border-radius:50px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:${bg};color:${fg}">${e}</span>`;
+    };
+    const fmtFecha = (f) => {
+      if (!f) return '—';
+      if (f.toDate) return f.toDate().toLocaleDateString('es-CO');
+      return new Date(f).toLocaleDateString('es-CO');
+    };
+    let html = '<div style="display:grid;gap:0.6rem">';
+    list.forEach(e => {
+      const p = e.paciente_snapshot || {};
+      const nombre = ((p.nombres||'')+' '+(p.apellidos||'')).trim() || '(sin nombre)';
+      html += `
+        <a href="expediente.html?id=${encodeURIComponent(e.id)}" style="display:flex;justify-content:space-between;align-items:center;gap:0.6rem;padding:0.85rem 1rem;background:white;border:1px solid #EEF3F7;border-radius:10px;text-decoration:none;color:#1A2233;transition:transform 0.15s,box-shadow 0.15s;flex-wrap:wrap" onmouseover="this.style.transform='translateX(2px)';this.style.boxShadow='0 4px 14px rgba(14,61,110,0.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <div style="flex:1;min-width:200px">
+            <div style="font-weight:700;color:#0E3D6E">${escapeHtml(nombre)}</div>
+            <div style="font-size:0.78rem;color:#6B7280">${escapeHtml(p.tipo_documento||'')} ${escapeHtml(p.numero_documento||'—')} · ${escapeHtml(p.empresa_nombre||e.empresa_id||'—')} · ${fmtFecha(e.fecha_visita)}</div>
+          </div>
+          <div>${estPill(e.estado||'recepcion')}</div>
+        </a>
+      `;
+    });
+    html += '</div>';
+    cont.innerHTML = html;
+  }
+  function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[ch])); }
+
+  // Filtro de estado en la vista de expedientes
+  document.getElementById('filterEstado')?.addEventListener('change', (e) => {
+    const val = e.target.value;
+    const list = (window._allExpedientes || []).filter(x => !val || x.estado === val);
+    renderExpedientes(list, 'expedientesList');
+  });
+
+  // Contador de usuarios pendientes (solo admin)
+  async function cargarPendientes() {
+    try {
+      const q = query(collection(db, 'users'), where('rol', '==', 'pendiente'));
+      const snap = await getDocs(q);
+      const n = snap.size;
+      const badge = document.getElementById('navUsuariosBadge');
+      if (n > 0 && badge) { badge.textContent = n; badge.style.display = 'inline-block'; }
+    } catch (_) {}
+  }
 </script>
 
 <script>
-// Set today date
-document.getElementById('todayDate').textContent = new Date().toLocaleDateString('es-CO', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-document.getElementById('agendaDate').value = new Date().toISOString().split('T')[0];
-
 function showView(name) {
-  const titles = { inicio:'Dashboard', agenda:'Agenda del día', citas:'Gestión de citas', pacientes:'Pacientes', autorizaciones:'Autorizaciones', reportes:'Reportes', perfil:'Mi Perfil' };
+  const titles = { inicio:'Inicio', expedientes:'Expedientes', perfil:'Mi perfil' };
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
@@ -422,34 +441,35 @@ function showView(name) {
   window.scrollTo(0,0);
 }
 
-function approveBadge(btn) {
-  const row = btn.closest('tr');
-  const badge = row.querySelector('.badge');
-  badge.className = 'badge badge-green';
-  badge.textContent = 'Aprobada';
-  btn.closest('div').innerHTML = '—';
-}
-
 async function saveProfile(e) {
   e.preventDefault();
   const btn = e.target.querySelector('.btn-blue');
   if (!window._currentUser) return;
+  // No incluimos "rol" en el merge: las Firestore Rules bloquean cualquier intento
+  // de cambiar el propio rol (solo el admin puede modificarlo desde la consola).
   const data = {
-    nombre: document.getElementById('p-nombre').value,
-    apellido: document.getElementById('p-apellido').value,
-    cargo: document.getElementById('p-cargo').value,
-    cedula: document.getElementById('p-cedula').value,
-    email: document.getElementById('p-email').value,
-    telefono: document.getElementById('p-tel').value,
-    role: 'empleado'
+    nombres:          document.getElementById('p-nombre').value.trim(),
+    apellidos:        document.getElementById('p-apellido').value.trim(),
+    cargo:            document.getElementById('p-cargo').value.trim(),
+    numero_documento: document.getElementById('p-cedula').value.trim(),
+    email:            document.getElementById('p-email').value.trim(),
+    telefono:         document.getElementById('p-tel').value.trim(),
+    updatedAt:        window._serverTimestamp()
   };
-  await window._setDoc(window._doc(window._db, 'users', window._currentUser.uid), data, { merge: true });
-  btn.textContent = '✓ Guardado';
-  btn.style.background = 'linear-gradient(135deg, #16A34A, #15803D)';
-  setTimeout(() => { btn.textContent = 'Guardar cambios'; btn.style.background = ''; }, 2000);
+  try {
+    await window._setDoc(window._doc(window._db, 'users', window._currentUser.uid), data, { merge: true });
+    btn.textContent = '✓ Guardado';
+    btn.style.background = 'linear-gradient(135deg, #16A34A, #15803D)';
+    setTimeout(() => { btn.textContent = 'Guardar cambios'; btn.style.background = ''; }, 2000);
+  } catch (err) {
+    btn.textContent = '⚠️ Error al guardar';
+    btn.style.background = 'linear-gradient(135deg, #DC2626, #B91C1C)';
+    setTimeout(() => { btn.textContent = 'Guardar cambios'; btn.style.background = ''; }, 2500);
+  }
 }
 
 async function handleLogout() {
+  try { localStorage.removeItem('rmips_user_cache_v1'); } catch (_) {}
   await window._signOut(window._auth);
   window.location.href = 'portal.html';
 }

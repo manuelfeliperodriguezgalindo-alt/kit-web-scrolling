@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E3D6E">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/logo-cuadrado.png">
+<title>Cuenta pendiente · Reina María IPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;margin:0;min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#0E3D6E,#1E6FB3);color:white;padding:1rem;
+    -webkit-font-smoothing:antialiased;
+  }
+  .card{
+    background:rgba(255,255,255,0.08);backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.2);border-radius:22px;
+    padding:2.5rem 2rem;max-width:480px;width:100%;text-align:center;
+    box-shadow:0 18px 48px rgba(0,0,0,0.25);
+  }
+  .icon{font-size:3.5rem;margin-bottom:0.6rem;}
+  h1{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.6rem;font-weight:600;}
+  .email{
+    display:inline-block;background:rgba(255,214,0,0.18);color:#FFD600;
+    padding:5px 12px;border-radius:50px;font-size:0.82rem;font-weight:600;
+    margin:0.4rem 0 1.2rem;font-family:ui-monospace,monospace;
+    border:1px solid rgba(255,214,0,0.35);
+  }
+  p{font-size:0.95rem;line-height:1.6;opacity:0.92;margin-bottom:1rem;}
+  .steps{
+    background:rgba(0,0,0,0.18);border-radius:12px;padding:1rem 1.2rem;
+    margin:1.2rem 0;text-align:left;font-size:0.88rem;
+  }
+  .steps strong{color:#FFD600;display:block;margin-bottom:0.4rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;}
+  .steps ol{padding-left:1.2rem;}
+  .steps li{margin-bottom:0.45rem;opacity:0.9;}
+  .actions{display:flex;gap:0.7rem;flex-direction:column;margin-top:1.5rem;}
+  .btn{
+    padding:0.85rem 1.4rem;border-radius:50px;font-weight:700;
+    text-decoration:none;font-family:'Inter',sans-serif;font-size:0.92rem;
+    border:none;cursor:pointer;
+  }
+  .btn-primary{background:#FFD600;color:#0E3D6E;}
+  .btn-primary:hover{background:white;}
+  .btn-ghost{background:transparent;color:rgba(255,255,255,0.85);border:1.5px solid rgba(255,255,255,0.35);}
+  .btn-ghost:hover{background:rgba(255,255,255,0.08);color:white;}
+  .verify-note{font-size:0.78rem;color:rgba(255,255,255,0.65);margin-top:1rem;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">⏳</div>
+    <h1>Tu cuenta está pendiente</h1>
+    <p>Hola <strong id="userName">—</strong>, hemos recibido tu registro.</p>
+    <div class="email" id="userEmail">—</div>
+
+    <p>Un administrador de <strong>Reina María IPS</strong> debe aprobar tu cuenta y asignarte un rol antes de que puedas acceder al sistema.</p>
+
+    <div class="steps">
+      <strong>Próximos pasos</strong>
+      <ol>
+        <li>Verifica tu correo si aún no lo has hecho (revisa también spam).</li>
+        <li>Contacta al administrador (correo o WhatsApp) para que active tu cuenta.</li>
+        <li>Cuando recibas confirmación, vuelve a iniciar sesión.</li>
+      </ol>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="checkApproval()">Comprobar si ya estoy aprobado</button>
+      <button class="btn btn-ghost" onclick="handleLogout()">Cerrar sesión</button>
+    </div>
+    <p class="verify-note" id="verifyNote"></p>
+  </div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig, ROLES, rolToDashboard } from './js/firebase-config.js';
+  import { showEmailGate } from './js/email-gate.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'portal.html'; return; }
+    if (!user.emailVerified) { showEmailGate(user, auth); return; }
+    currentUser = user;
+    document.getElementById('userEmail').textContent = user.email;
+
+    // Cargar info del user
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      const data = snap.exists() ? snap.data() : {};
+      const nombre = data.nombres || user.displayName || 'usuario';
+      document.getElementById('userName').textContent = nombre;
+
+      // Si el rol YA fue asignado, redirigir directamente
+      if (data.rol && data.rol !== ROLES.PENDIENTE) {
+        window.location.href = rolToDashboard(data.rol);
+      }
+    } catch (e) { console.error(e); }
+  });
+
+  window.checkApproval = async function() {
+    if (!currentUser) return;
+    const note = document.getElementById('verifyNote');
+    note.textContent = 'Comprobando...';
+    try {
+      const snap = await getDoc(doc(db, 'users', currentUser.uid));
+      const data = snap.exists() ? snap.data() : {};
+      if (data.rol && data.rol !== ROLES.PENDIENTE) {
+        note.textContent = '✓ Aprobado. Redirigiendo...';
+        setTimeout(() => window.location.href = rolToDashboard(data.rol), 600);
+      } else {
+        note.textContent = 'Tu cuenta aún está pendiente. Intenta más tarde.';
+      }
+    } catch (e) {
+      note.textContent = 'Error al comprobar: ' + (e.message || e.code);
+    }
+  };
+
+  window.handleLogout = async function() {
+    try { localStorage.removeItem('rmips_user_cache_v1'); } catch (_) {}
+    try { await signOut(auth); } catch (_) {}
+    window.location.href = 'portal.html';
+  };
+</script>
+</body>
+</html>

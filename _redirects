@@ -1,0 +1,33 @@
+# ─── Bloquear acceso a archivos privados (404) ────────────────────
+/FORMATOS*           /404.html  404
+/firestore.rules     /404.html  404
+/storage.rules       /404.html  404
+/CLAUDE.md           /404.html  404
+/INSTRUCCIONES.md    /404.html  404
+/js/firebase-setup.md  /404.html  404
+/.gitignore          /404.html  404
+/.claude/*           /404.html  404
+
+# ─── URLs limpias (sin .html) ─────────────────────────────────────
+/portal                    /portal.html                    200
+/cuenta-pendiente          /cuenta-pendiente.html          200
+/dashboard-paciente        /dashboard-paciente.html        200
+/dashboard-empleado        /dashboard-empleado.html        200
+/dashboard-empresa         /dashboard-empresa.html         200
+/nuevo-expediente          /nuevo-expediente.html          200
+/expediente                /expediente.html                200
+/nueva-historia-clinica    /nueva-historia-clinica.html    200
+/nuevo-concepto-aptitud    /nuevo-concepto-aptitud.html    200
+/audiometria               /audiometria.html               200
+/visiometria               /visiometria.html               200
+/optometria                /optometria.html                200
+/usuarios                  /usuarios.html                  200
+/empresas                  /empresas.html                  200
+/pacientes                 /pacientes.html                 200
+/perfil-medico             /perfil-medico.html             200
+/politica-privacidad       /politica-privacidad.html       200
+/privacidad                /politica-privacidad.html       200
+/habeas-data               /politica-privacidad.html       200
+
+# Compatibilidad con URL vieja
+/invitaciones              /usuarios.html                  301
